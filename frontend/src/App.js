@@ -6,6 +6,8 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
+import AdminLoginPage from '@/pages/AdminLoginPage';
+import AdminRegisterPage from '@/pages/AdminRegisterPage';
 import BrowseListingsPage from '@/pages/BrowseListingsPage';
 import PropertyDetailPage from '@/pages/PropertyDetailPage';
 import PostPropertyPage from '@/pages/PostPropertyPage';
@@ -32,6 +34,20 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            
+            {/* Admin Routes - Separate from regular user flow */}
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin/register" element={<AdminRegisterPage />} />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Regular User Routes */}
             <Route path="/browse/:category" element={<BrowseListingsPage />} />
             <Route path="/property/:id" element={<PropertyDetailPage />} />
             <Route path="/find-flatmate" element={<FindFlatmatePage />} />
@@ -65,14 +81,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MyFlatmateProfilePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AdminDashboard />
                 </ProtectedRoute>
               } 
             />

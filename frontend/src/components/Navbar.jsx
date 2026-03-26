@@ -43,6 +43,9 @@ export const Navbar = () => {
             <Link to="/browse/sell">
               <Button variant="ghost" size="sm">Buy/Sell</Button>
             </Link>
+            <Link to="/find-flatmate">
+              <Button variant="ghost" size="sm">Find Flatmate</Button>
+            </Link>
 
             {user ? (
               <>

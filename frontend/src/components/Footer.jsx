@@ -56,6 +56,18 @@ export const Footer = () => {
             </ul>
           </div>
 
+          {/* Admin Access - Hidden link */}
+          <div>
+            <h3 className="font-semibold mb-4">Admin</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/admin/login" className="text-muted-foreground hover:text-primary transition-colors">
+                  Admin Login
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           {/* Contact */}
           <div>
             <h3 className="font-semibold mb-4">Contact</h3>

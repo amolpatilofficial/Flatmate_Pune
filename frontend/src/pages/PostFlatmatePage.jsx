@@ -89,6 +89,23 @@ const PostFlatmatePage = () => {
     });
   };
 
+  const handleProfilePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Photo should be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfilePhoto(reader.result);
+      toast.success('Profile photo uploaded');
+    };
+    reader.readAsDataURL(file);
+  };
+
   const removePhoto = (id) => {
     setRoomPhotos(prev => prev.filter(p => p.id !== id));
   };

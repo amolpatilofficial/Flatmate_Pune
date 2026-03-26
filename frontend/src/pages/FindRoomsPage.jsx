@@ -223,24 +223,42 @@ const FindRoomsPage = () => {
                   {/* Posted by */}
                   <div className="pt-3 border-t border-border">
                     <p className="text-xs text-muted-foreground">Posted by</p>
-                    <p className="text-sm font-medium text-foreground">{room.name}</p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <Badge variant="outline" className="text-xs">
-                        {room.lookingFor === 'any' ? 'Any Gender' : room.lookingFor}
-                      </Badge>
-                      {room.vegetarian && (
-                        <Badge variant="outline" className="text-xs border-green-500 text-green-700">
-                          Veg
-                        </Badge>
-                      )}
+                    <div className="flex items-center gap-3 mt-2">
+                      <Avatar className="h-10 w-10 border-2 border-background">
+                        {room.profilePhoto ? (
+                          <img src={room.profilePhoto} alt={room.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <AvatarFallback className="text-sm font-semibold bg-primary text-primary-foreground">
+                            {room.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{room.name}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {room.lookingFor === 'any' ? 'Any' : room.lookingFor}
+                          </Badge>
+                          {room.vegetarian && (
+                            <Badge variant="outline" className="text-xs border-green-500 text-green-700">
+                              Veg
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
 
-                <CardFooter className="p-6 pt-0">
-                  <Link to={`/room/${room.id}`} className="w-full">
+                <CardFooter className="p-6 pt-0 flex gap-2">
+                  <Link to={`/room/${room.id}`} className="flex-1">
                     <Button className="w-full bg-accent hover:bg-accent/90">
-                      View Room Details
+                      View Room
+                    </Button>
+                  </Link>
+                  <Link to={`/person/${room.id}`} className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      View Person
                     </Button>
                   </Link>
                 </CardFooter>

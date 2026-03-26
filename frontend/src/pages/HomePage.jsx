@@ -29,6 +29,13 @@ const HomePage = () => {
       icon: Building,
       link: '/browse/sell',
       color: 'text-success'
+    },
+    {
+      title: 'Find Flatmate',
+      description: 'Connect with people looking for flatmates',
+      icon: Users,
+      link: '/find-flatmate',
+      color: 'text-primary'
     }
   ];
 

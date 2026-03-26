@@ -10,6 +10,10 @@ import BrowseListingsPage from '@/pages/BrowseListingsPage';
 import PropertyDetailPage from '@/pages/PropertyDetailPage';
 import PostPropertyPage from '@/pages/PostPropertyPage';
 import MyListingsPage from '@/pages/MyListingsPage';
+import FindFlatmatePage from '@/pages/FindFlatmatePage';
+import PostFlatmatePage from '@/pages/PostFlatmatePage';
+import FlatmateDetailPage from '@/pages/FlatmateDetailPage';
+import MyFlatmateProfilePage from '@/pages/MyFlatmateProfilePage';
 import AdminDashboard from '@/pages/AdminDashboard';
 import { seedMockData } from '@/utils/seedData';
 import '@/App.css';
@@ -30,6 +34,8 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/browse/:category" element={<BrowseListingsPage />} />
             <Route path="/property/:id" element={<PropertyDetailPage />} />
+            <Route path="/find-flatmate" element={<FindFlatmatePage />} />
+            <Route path="/flatmate/:id" element={<FlatmateDetailPage />} />
             <Route 
               path="/post-property" 
               element={
@@ -39,10 +45,26 @@ function App() {
               } 
             />
             <Route 
+              path="/post-flatmate" 
+              element={
+                <ProtectedRoute>
+                  <PostFlatmatePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/my-listings" 
               element={
                 <ProtectedRoute>
                   <MyListingsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-flatmate-profile" 
+              element={
+                <ProtectedRoute>
+                  <MyFlatmateProfilePage />
                 </ProtectedRoute>
               } 
             />

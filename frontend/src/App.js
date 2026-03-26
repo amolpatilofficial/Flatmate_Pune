@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -11,9 +11,15 @@ import PropertyDetailPage from '@/pages/PropertyDetailPage';
 import PostPropertyPage from '@/pages/PostPropertyPage';
 import MyListingsPage from '@/pages/MyListingsPage';
 import AdminDashboard from '@/pages/AdminDashboard';
+import { seedMockData } from '@/utils/seedData';
 import '@/App.css';
 
 function App() {
+  useEffect(() => {
+    // Seed mock data on initial load
+    seedMockData();
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>

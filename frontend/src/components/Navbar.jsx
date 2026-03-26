@@ -34,8 +34,8 @@ export const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/find-flatmate">
-              <Button variant="ghost" size="sm">Find Flatmates</Button>
+            <Link to="/find-rooms">
+              <Button variant="ghost" size="sm">Find Rooms</Button>
             </Link>
 
             {user ? (

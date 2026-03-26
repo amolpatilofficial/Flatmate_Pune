@@ -111,10 +111,10 @@ export const Navbar = () => {
             
             {user ? (
               <>
-                <Link to="/post-property" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/post-flatmate" onClick={() => setMobileMenuOpen(false)}>
                   <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
                     <Plus className="h-4 w-4 mr-2" />
-                    Post Property
+                    Post Profile
                   </Button>
                 </Link>
                 <Link to="/my-listings" onClick={() => setMobileMenuOpen(false)}>

@@ -14,8 +14,7 @@ const RegisterPage = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    isAdmin: false
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();

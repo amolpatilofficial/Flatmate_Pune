@@ -17,36 +17,36 @@ code {
 
 @layer base {
     :root {
-        /* Modern Minimalist Neutral Palette */
-        --background: 36 20% 98%;           /* Warm off-white */
-        --foreground: 30 15% 15%;           /* Charcoal text */
+        /* Clean White Background with Bold Red/Blue Accent */
+        --background: 0 0% 100%;            /* Pure white */
+        --foreground: 0 0% 10%;             /* Dark gray text */
         
         --card: 0 0% 100%;                  /* Pure white cards */
-        --card-foreground: 30 15% 15%;
+        --card-foreground: 0 0% 10%;
         
         --popover: 0 0% 100%;
-        --popover-foreground: 30 15% 15%;
+        --popover-foreground: 0 0% 10%;
         
-        --primary: 28 75% 55%;              /* Warm terracotta accent */
+        --primary: 0 84% 60%;               /* Bold Red */
         --primary-foreground: 0 0% 100%;
-        --primary-hover: 28 75% 48%;
+        --primary-hover: 0 84% 55%;
         
-        --secondary: 30 25% 92%;            /* Soft beige */
-        --secondary-foreground: 30 15% 25%;
+        --secondary: 0 0% 96%;              /* Light gray */
+        --secondary-foreground: 0 0% 10%;
         
-        --muted: 30 20% 94%;                /* Light neutral */
-        --muted-foreground: 30 10% 45%;
+        --muted: 0 0% 96%;                  /* Light gray */
+        --muted-foreground: 0 0% 45%;
         
-        --accent: 200 70% 50%;              /* Professional teal for CTAs */
+        --accent: 217 91% 60%;              /* Bold Blue */
         --accent-foreground: 0 0% 100%;
-        --accent-hover: 200 70% 45%;
+        --accent-hover: 217 91% 55%;
         
-        --destructive: 0 72% 51%;
+        --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 98%;
         
-        --border: 30 15% 88%;               /* Subtle borders */
-        --input: 30 15% 88%;
-        --ring: 28 75% 55%;
+        --border: 0 0% 90%;                 /* Light gray borders */
+        --input: 0 0% 90%;
+        --ring: 0 84% 60%;
         
         --success: 142 71% 45%;
         --warning: 38 92% 50%;
@@ -54,12 +54,12 @@ code {
         --radius: 0.75rem;                  /* Smooth corners */
         
         /* Custom Design Tokens */
-        --gradient-hero: linear-gradient(135deg, hsl(28 75% 55% / 0.08), hsl(200 70% 50% / 0.08));
-        --gradient-accent: linear-gradient(135deg, hsl(28 75% 55%), hsl(28 75% 48%));
-        --shadow-sm: 0 1px 2px 0 hsl(30 15% 15% / 0.05);
-        --shadow-md: 0 4px 6px -1px hsl(30 15% 15% / 0.08), 0 2px 4px -1px hsl(30 15% 15% / 0.04);
-        --shadow-lg: 0 10px 15px -3px hsl(30 15% 15% / 0.08), 0 4px 6px -2px hsl(30 15% 15% / 0.04);
-        --shadow-xl: 0 20px 25px -5px hsl(30 15% 15% / 0.08), 0 10px 10px -5px hsl(30 15% 15% / 0.03);
+        --gradient-hero: linear-gradient(135deg, hsl(0 84% 60% / 0.05), hsl(217 91% 60% / 0.05));
+        --gradient-accent: linear-gradient(135deg, hsl(0 84% 60%), hsl(0 84% 55%));
+        --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+        --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.08), 0 2px 4px -1px hsl(0 0% 0% / 0.04);
+        --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.08), 0 4px 6px -2px hsl(0 0% 0% / 0.04);
+        --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.08), 0 10px 10px -5px hsl(0 0% 0% / 0.03);
         
         --transition-smooth: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         --transition-base: 0.15s ease-in-out;

@@ -119,6 +119,9 @@ export const Navbar = () => {
             <Link to="/browse/sell" onClick={() => setMobileMenuOpen(false)}>
               <Button variant="ghost" size="sm" className="w-full justify-start">Buy/Sell</Button>
             </Link>
+            <Link to="/find-flatmate" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" size="sm" className="w-full justify-start">Find Flatmate</Button>
+            </Link>
             
             {user ? (
               <>

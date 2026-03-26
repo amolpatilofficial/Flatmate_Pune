@@ -40,10 +40,10 @@ export const Navbar = () => {
 
             {user ? (
               <>
-                <Link to="/post-property">
+                <Link to="/post-flatmate">
                   <Button size="sm" className="bg-primary hover:bg-primary/90">
                     <Plus className="h-4 w-4 mr-2" />
-                    Post Property
+                    Post Profile
                   </Button>
                 </Link>
                 

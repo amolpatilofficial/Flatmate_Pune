@@ -8,13 +8,9 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import AdminLoginPage from '@/pages/AdminLoginPage';
 import AdminRegisterPage from '@/pages/AdminRegisterPage';
-import BrowseListingsPage from '@/pages/BrowseListingsPage';
-import PropertyDetailPage from '@/pages/PropertyDetailPage';
-import PostPropertyPage from '@/pages/PostPropertyPage';
-import MyListingsPage from '@/pages/MyListingsPage';
-import FindFlatmatePage from '@/pages/FindFlatmatePage';
+import FindRoomsPage from '@/pages/FindRoomsPage';
+import RoomDetailPage from '@/pages/RoomDetailPage';
 import PostFlatmatePage from '@/pages/PostFlatmatePage';
-import FlatmateDetailPage from '@/pages/FlatmateDetailPage';
 import MyFlatmateProfilePage from '@/pages/MyFlatmateProfilePage';
 import AdminDashboard from '@/pages/AdminDashboard';
 import { seedMockData } from '@/utils/seedData';
@@ -47,32 +43,19 @@ function App() {
               } 
             />
             
-            {/* Regular User Routes */}
-            <Route path="/browse/:category" element={<BrowseListingsPage />} />
-            <Route path="/property/:id" element={<PropertyDetailPage />} />
-            <Route path="/find-flatmate" element={<FindFlatmatePage />} />
-            <Route path="/flatmate/:id" element={<FlatmateDetailPage />} />
-            <Route 
-              path="/post-property" 
-              element={
-                <ProtectedRoute>
-                  <PostPropertyPage />
-                </ProtectedRoute>
-              } 
-            />
+            {/* Main Room Finding Routes */}
+            <Route path="/find-rooms" element={<FindRoomsPage />} />
+            <Route path="/room/:id" element={<RoomDetailPage />} />
+            
+            {/* Legacy routes - redirect to new structure */}
+            <Route path="/find-flatmate" element={<Navigate to="/find-rooms" replace />} />
+            <Route path="/flatmate/:id" element={<Navigate to="/room/:id" replace />} />
+            
             <Route 
               path="/post-flatmate" 
               element={
                 <ProtectedRoute>
                   <PostFlatmatePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/my-listings" 
-              element={
-                <ProtectedRoute>
-                  <MyListingsPage />
                 </ProtectedRoute>
               } 
             />

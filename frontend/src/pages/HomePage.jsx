@@ -69,23 +69,23 @@ const HomePage = () => {
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-foreground leading-tight">
               Find Your Perfect
-              <span className="text-primary"> Flatmate</span> in
+              <span className="text-primary"> Room</span> in
               <span className="text-accent"> Pune</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Connect with compatible flatmates, share your space, or find the perfect room. Join hundreds of people finding their ideal living situation.
+              Browse verified rooms with photos, connect with owners, and find your ideal living space in Pune.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              <Link to="/find-flatmate">
+              <Link to="/find-rooms">
                 <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8">
                   <Search className="mr-2 h-5 w-5" />
-                  Find Flatmates
+                  Find Rooms
                 </Button>
               </Link>
               <Link to="/post-flatmate">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg px-8 border-accent text-accent hover:bg-accent hover:text-accent-foreground">
                   <Home className="mr-2 h-5 w-5" />
-                  Post Your Profile
+                  Post Your Room
                 </Button>
               </Link>
             </div>

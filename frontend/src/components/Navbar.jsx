@@ -70,6 +70,10 @@ export const Navbar = () => {
                       <List className="h-4 w-4 mr-2" />
                       My Listings
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/my-flatmate-profile')}>
+                      <User className="h-4 w-4 mr-2" />
+                      My Flatmate Profile
+                    </DropdownMenuItem>
                     {isAdmin && (
                       <DropdownMenuItem onClick={() => navigate('/admin')}>
                         <ShieldCheck className="h-4 w-4 mr-2" />

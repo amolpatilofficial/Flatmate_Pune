@@ -23,13 +23,13 @@ export const Footer = () => {
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/find-flatmate" className="text-muted-foreground hover:text-primary transition-colors">
-                  Find Flatmates
+                <Link to="/find-rooms" className="text-muted-foreground hover:text-primary transition-colors">
+                  Find Rooms
                 </Link>
               </li>
               <li>
                 <Link to="/post-flatmate" className="text-muted-foreground hover:text-primary transition-colors">
-                  Post Profile
+                  Post Your Room
                 </Link>
               </li>
               <li>

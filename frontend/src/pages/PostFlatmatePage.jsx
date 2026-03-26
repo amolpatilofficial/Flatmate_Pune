@@ -19,6 +19,7 @@ const PostFlatmatePage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [roomPhotos, setRoomPhotos] = useState([]);
+  const [profilePhoto, setProfilePhoto] = useState(null);
   
   const [formData, setFormData] = useState({
     name: user?.name || '',

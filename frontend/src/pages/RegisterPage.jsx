@@ -50,7 +50,7 @@ const RegisterPage = () => {
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      isAdmin: formData.isAdmin,
+      isAdmin: false, // Regular users are never admin
       createdAt: new Date().toISOString()
     };
 

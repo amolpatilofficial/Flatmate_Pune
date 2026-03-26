@@ -186,4 +186,142 @@ export const seedMockData = () => {
 
   localStorage.setItem('propertyListings', JSON.stringify(mockListings));
   console.log('Mock data seeded successfully!');
+  
+  // Seed flatmate profiles
+  const existingFlatmates = localStorage.getItem('flatmateProfiles');
+  if (existingFlatmates && JSON.parse(existingFlatmates).length > 0) {
+    return; // Don't overwrite existing flatmate data
+  }
+  
+  const mockFlatmates = [
+    {
+      id: 'flatmate-1',
+      name: 'Rohan Mehta',
+      age: 26,
+      gender: 'male',
+      occupation: 'Software Engineer',
+      preferredArea: 'Hinjewadi',
+      budget: 10000,
+      hasPlace: false,
+      lookingFor: 'male',
+      vegetarian: true,
+      smoking: false,
+      drinking: false,
+      petFriendly: false,
+      description: 'Working professional at a tech company. Looking for a clean, quiet flatmate who values personal space. I enjoy reading, coding, and occasional outdoor activities. Non-smoker and vegetarian. Prefer someone with similar lifestyle.',
+      phone: '9876543220',
+      userId: 'demo-flatmate-user-1',
+      userEmail: 'rohan.mehta@example.com',
+      status: 'approved',
+      createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'flatmate-2',
+      name: 'Priya Sharma',
+      age: 24,
+      gender: 'female',
+      occupation: 'Marketing Manager',
+      preferredArea: 'Koregaon Park',
+      budget: 15000,
+      hasPlace: true,
+      lookingFor: 'female',
+      vegetarian: true,
+      smoking: false,
+      drinking: true,
+      petFriendly: true,
+      description: 'I have a 2BHK in Koregaon Park and looking for a female flatmate. I work in marketing and love to travel on weekends. Pet friendly household - I have a cat! Looking for someone who is clean, responsible, and friendly.',
+      phone: '9876543221',
+      userId: 'demo-flatmate-user-2',
+      userEmail: 'priya.sharma@example.com',
+      status: 'approved',
+      createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'flatmate-3',
+      name: 'Aman Singh',
+      age: 28,
+      gender: 'male',
+      occupation: 'Data Analyst',
+      preferredArea: 'Baner',
+      budget: 12000,
+      hasPlace: true,
+      lookingFor: 'any',
+      vegetarian: false,
+      smoking: false,
+      drinking: true,
+      petFriendly: false,
+      description: 'Chill and easy-going person. I have a place in Baner with an empty room. Working as a data analyst with flexible hours. Enjoy gaming, movies, and sports. Looking for a responsible flatmate who can share household responsibilities.',
+      phone: '9876543222',
+      userId: 'demo-flatmate-user-3',
+      userEmail: 'aman.singh@example.com',
+      status: 'approved',
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'flatmate-4',
+      name: 'Sneha Patil',
+      age: 23,
+      gender: 'female',
+      occupation: 'Graphic Designer',
+      preferredArea: 'Viman Nagar',
+      budget: 9000,
+      hasPlace: false,
+      lookingFor: 'female',
+      vegetarian: true,
+      smoking: false,
+      drinking: false,
+      petFriendly: true,
+      description: 'Creative professional working as a graphic designer. Love art, music, and yoga. Looking for a female flatmate to share a place near my office in Viman Nagar. Vegetarian and pet lover. Would prefer someone who values a healthy lifestyle.',
+      phone: '9876543223',
+      userId: 'demo-flatmate-user-4',
+      userEmail: 'sneha.patil@example.com',
+      status: 'approved',
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'flatmate-5',
+      name: 'Karan Desai',
+      age: 25,
+      gender: 'male',
+      occupation: 'Business Analyst',
+      preferredArea: 'Aundh',
+      budget: 13000,
+      hasPlace: false,
+      lookingFor: 'male',
+      vegetarian: false,
+      smoking: false,
+      drinking: true,
+      petFriendly: false,
+      description: 'Working professional looking for a flatmate in Aundh area. I work as a business analyst and enjoy fitness, traveling, and trying new restaurants. Looking for someone who is clean, organized, and has a positive attitude.',
+      phone: '9876543224',
+      userId: 'demo-flatmate-user-5',
+      userEmail: 'karan.desai@example.com',
+      status: 'approved',
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'flatmate-6',
+      name: 'Ananya Iyer',
+      age: 27,
+      gender: 'female',
+      occupation: 'HR Professional',
+      preferredArea: 'Kharadi',
+      budget: 11000,
+      hasPlace: true,
+      lookingFor: 'female',
+      vegetarian: true,
+      smoking: false,
+      drinking: false,
+      petFriendly: false,
+      description: 'I have a comfortable 2BHK apartment in Kharadi. Working in HR and love cooking, reading, and meditation. Looking for a mature, responsible female flatmate. Vegetarian household. Prefer someone who maintains cleanliness and respects personal space.',
+      phone: '9876543225',
+      userId: 'demo-flatmate-user-6',
+      userEmail: 'ananya.iyer@example.com',
+      status: 'approved',
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
+  
+  localStorage.setItem('flatmateProfiles', JSON.stringify(mockFlatmates));
+  console.log('Mock flatmate profiles seeded successfully!');
 };

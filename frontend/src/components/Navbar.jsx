@@ -141,6 +141,12 @@ export const Navbar = () => {
                     My Listings
                   </Button>
                 </Link>
+                <Link to="/my-flatmate-profile" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <User className="h-4 w-4 mr-2" />
+                    My Flatmate Profile
+                  </Button>
+                </Link>
                 {isAdmin && (
                   <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" size="sm" className="w-full justify-start">

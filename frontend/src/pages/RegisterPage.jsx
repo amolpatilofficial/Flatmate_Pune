@@ -142,16 +142,6 @@ const RegisterPage = () => {
                 />
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="isAdmin" 
-                checked={formData.isAdmin}
-                onCheckedChange={(checked) => setFormData({...formData, isAdmin: checked})}
-              />
-              <Label htmlFor="isAdmin" className="text-sm font-normal cursor-pointer">
-                Register as Admin (for property approval)
-              </Label>
-            </div>
             <Button 
               type="submit" 
               className="w-full bg-primary hover:bg-primary/90" 

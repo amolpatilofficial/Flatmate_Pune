@@ -176,6 +176,53 @@ const PostFlatmatePage = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Personal Information</h3>
                 
+                {/* Profile Photo Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="profilePhoto">Your Photo (Optional - helps build trust)</Label>
+                  <div className="flex items-center gap-4">
+                    {profilePhoto ? (
+                      <div className="relative">
+                        <img 
+                          src={profilePhoto} 
+                          alt="Profile"
+                          className="w-24 h-24 rounded-full object-cover border-2 border-primary"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setProfilePhoto(null)}
+                          className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-24 h-24 rounded-full bg-secondary flex items-center justify-center border-2 border-dashed border-border">
+                        <User className="h-10 w-10 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        id="profilePhoto"
+                        accept="image/*"
+                        onChange={handleProfilePhotoUpload}
+                        className="hidden"
+                      />
+                      <label htmlFor="profilePhoto" className="cursor-pointer">
+                        <Button type="button" variant="outline" size="sm" asChild>
+                          <span>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload Photo
+                          </span>
+                        </Button>
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        JPG, PNG - Max 5MB. Optional but recommended.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name *</Label>

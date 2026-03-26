@@ -12,12 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { User, Briefcase, MapPin, IndianRupee, Calendar } from 'lucide-react';
+import { User, Briefcase, MapPin, IndianRupee, Calendar, Upload, X } from 'lucide-react';
 
 const PostFlatmatePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [roomPhotos, setRoomPhotos] = useState([]);
   
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -27,11 +28,19 @@ const PostFlatmatePage = () => {
     preferredArea: '',
     budget: '',
     hasPlace: false,
+    roomType: 'pg', // pg or rent
     lookingFor: 'any',
     vegetarian: false,
     smoking: false,
     drinking: false,
     petFriendly: false,
+    // Room details (if hasPlace)
+    bedrooms: '',
+    bathrooms: '',
+    amenities: [],
+    lift: false,
+    waterType: 'tap',
+    address: '',
     description: '',
     phone: ''
   });
@@ -41,6 +50,47 @@ const PostFlatmatePage = () => {
     'Aundh', 'Wakad', 'Pimple Saudagar', 'Kothrud', 'Karve Nagar',
     'Deccan', 'Shivajinagar', 'Camp', 'Hadapsar', 'Magarpatta'
   ];
+
+  const amenitiesList = ['WiFi', 'TV', 'AC', 'Fridge', 'Water'];
+
+  const handleAmenityToggle = (amenity) => {
+    setFormData(prev => ({
+      ...prev,
+      amenities: prev.amenities.includes(amenity)
+        ? prev.amenities.filter(a => a !== amenity)
+        : [...prev.amenities, amenity]
+    }));
+  };
+
+  const handlePhotoUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    
+    if (roomPhotos.length + files.length > 5) {
+      toast.error('Maximum 5 photos allowed');
+      return;
+    }
+
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Each photo should be less than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setRoomPhotos(prev => [...prev, {
+          id: Date.now() + Math.random(),
+          name: file.name,
+          url: reader.result
+        }]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (id) => {
+    setRoomPhotos(prev => prev.filter(p => p.id !== id));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,11 +108,21 @@ const PostFlatmatePage = () => {
       return;
     }
 
+    // If user has a place, photos are mandatory
+    if (formData.hasPlace && roomPhotos.length === 0) {
+      toast.error('Please upload at least one photo of your room');
+      setLoading(false);
+      return;
+    }
+
     const newProfile = {
       id: Date.now().toString(),
       ...formData,
       age: parseInt(formData.age),
       budget: parseInt(formData.budget),
+      bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
+      bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
+      roomPhotos: roomPhotos,
       userId: user.id,
       userEmail: user.email,
       status: 'pending',
@@ -87,7 +147,7 @@ const PostFlatmatePage = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
         <Card className="shadow-elegant-lg">
           <CardHeader>
-            <CardTitle className="text-3xl">Post Your Flatmate Profile</CardTitle>
+            <CardTitle className="text-3xl text-primary">Post Your Flatmate Profile</CardTitle>
             <CardDescription>
               Create your profile to find the perfect flatmate. Your profile will be reviewed by admin before going live.
             </CardDescription>
@@ -168,9 +228,152 @@ const PostFlatmatePage = () => {
                 </div>
               </div>
 
+              {/* Room Status */}
+              <div className="space-y-4 p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
+                <h3 className="text-lg font-semibold text-foreground">Your Accommodation Status</h3>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="hasPlace"
+                    checked={formData.hasPlace}
+                    onCheckedChange={(checked) => setFormData({...formData, hasPlace: checked})}
+                  />
+                  <Label htmlFor="hasPlace" className="font-normal cursor-pointer text-base">
+                    I already have a place and looking for a flatmate to share
+                  </Label>
+                </div>
+
+                {formData.hasPlace && (
+                  <div className="space-y-4 mt-4 p-4 bg-white rounded-lg border border-border">
+                    <h4 className="font-semibold text-accent">Room Details</h4>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="roomType">Type of Accommodation *</Label>
+                      <RadioGroup value={formData.roomType} onValueChange={(value) => setFormData({...formData, roomType: value})}>
+                        <div className="flex items-center space-x-6">
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="pg" id="pg" />
+                            <Label htmlFor="pg" className="font-normal cursor-pointer">PG (Paying Guest)</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="rent" id="rent" />
+                            <Label htmlFor="rent" className="font-normal cursor-pointer">Rental Property</Label>
+                          </div>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    {/* Photo Upload - MANDATORY for room owners */}
+                    <div className="space-y-2">
+                      <Label htmlFor="photos">Room Photos * (Mandatory - Max 5 photos)</Label>
+                      <div className="border-2 border-dashed border-primary/30 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                        <input
+                          type="file"
+                          id="photos"
+                          accept="image/*"
+                          multiple
+                          onChange={handlePhotoUpload}
+                          className="hidden"
+                        />
+                        <label htmlFor="photos" className="cursor-pointer">
+                          <Upload className="h-10 w-10 mx-auto mb-2 text-primary" />
+                          <p className="text-sm text-muted-foreground">
+                            Click to upload room photos (JPG, PNG - Max 5MB each)
+                          </p>
+                        </label>
+                      </div>
+                      
+                      {roomPhotos.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                          {roomPhotos.map(photo => (
+                            <div key={photo.id} className="relative group">
+                              <img 
+                                src={photo.url} 
+                                alt={photo.name}
+                                className="w-full h-32 object-cover rounded-lg border border-border"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removePhoto(photo.id)}
+                                className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bedrooms">Bedrooms</Label>
+                        <Input
+                          id="bedrooms"
+                          type="number"
+                          placeholder="Number of bedrooms"
+                          value={formData.bedrooms}
+                          onChange={(e) => setFormData({...formData, bedrooms: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="bathrooms">Bathrooms</Label>
+                        <Input
+                          id="bathrooms"
+                          type="number"
+                          placeholder="Number of bathrooms"
+                          value={formData.bathrooms}
+                          onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>Amenities</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {amenitiesList.map(amenity => (
+                          <div key={amenity} className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={amenity}
+                              checked={formData.amenities.includes(amenity)}
+                              onCheckedChange={() => handleAmenityToggle(amenity)}
+                            />
+                            <Label htmlFor={amenity} className="font-normal cursor-pointer">
+                              {amenity}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Full Address *</Label>
+                      <Input
+                        id="address"
+                        placeholder="Street, landmark"
+                        value={formData.address}
+                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        required={formData.hasPlace}
+                      />
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="lift"
+                        checked={formData.lift}
+                        onCheckedChange={(checked) => setFormData({...formData, lift: checked})}
+                      />
+                      <Label htmlFor="lift" className="font-normal cursor-pointer">
+                        Lift Available
+                      </Label>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Preferences */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground">Accommodation Preferences</h3>
+                <h3 className="text-lg font-semibold text-foreground">Preferences</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -204,17 +407,6 @@ const PostFlatmatePage = () => {
                       />
                     </div>
                   </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="hasPlace"
-                    checked={formData.hasPlace}
-                    onCheckedChange={(checked) => setFormData({...formData, hasPlace: checked})}
-                  />
-                  <Label htmlFor="hasPlace" className="font-normal cursor-pointer">
-                    I already have a place (looking for someone to share)
-                  </Label>
                 </div>
 
                 <div className="space-y-2">

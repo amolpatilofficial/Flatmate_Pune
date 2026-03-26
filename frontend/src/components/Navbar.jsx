@@ -105,8 +105,8 @@ export const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-card">
           <div className="px-4 pt-2 pb-4 space-y-2">
-            <Link to="/find-flatmate" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" size="sm" className="w-full justify-start">Find Flatmates</Button>
+            <Link to="/find-rooms" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" size="sm" className="w-full justify-start">Find Rooms</Button>
             </Link>
             
             {user ? (

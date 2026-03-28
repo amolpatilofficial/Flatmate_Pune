@@ -18,11 +18,11 @@ const BrowseFlatsPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load all approved listings
+    // Load all approved and pending listings (show everything except rejected)
     const allListings = JSON.parse(localStorage.getItem('propertyListings') || '[]');
-    const approvedFlats = allListings.filter(l => l.status === 'approved');
-    setFlats(approvedFlats);
-    setFilteredFlats(approvedFlats);
+    const visibleFlats = allListings.filter(l => l.status !== 'rejected');
+    setFlats(visibleFlats);
+    setFilteredFlats(visibleFlats);
   }, []);
 
   useEffect(() => {
@@ -156,9 +156,16 @@ const BrowseFlatsPage = () => {
                         alt={flat.title}
                         className="w-full h-full object-cover"
                       />
-                      <Badge className={`absolute top-3 right-3 ${getCategoryBadge(flat.category)}`}>
-                        {flat.category.toUpperCase()}
-                      </Badge>
+                      <div className="absolute top-3 right-3 flex gap-2">
+                        <Badge className={getCategoryBadge(flat.category)}>
+                          {flat.category.toUpperCase()}
+                        </Badge>
+                        {flat.status === 'pending' && (
+                          <Badge className="bg-warning/20 text-warning border-warning">
+                            Pending Approval
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     <CardHeader>
                       <div className="flex justify-between items-start gap-2">

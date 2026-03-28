@@ -104,9 +104,21 @@ const FlatDetailPage = () => {
                     alt={flat.title}
                     className="w-full h-full object-cover"
                   />
-                  <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
-                    {flat.category.toUpperCase()}
-                  </Badge>
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    <Badge className="bg-primary text-primary-foreground">
+                      {flat.category.toUpperCase()}
+                    </Badge>
+                    {flat.status === 'pending' && (
+                      <Badge className="bg-warning text-warning-foreground">
+                        Pending Approval
+                      </Badge>
+                    )}
+                    {flat.status === 'approved' && (
+                      <Badge className="bg-success text-success-foreground">
+                        Approved
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </Card>
 

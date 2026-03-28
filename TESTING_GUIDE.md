@@ -112,7 +112,7 @@ This app now includes comprehensive seed data that automatically populates when 
    - Go to http://localhost:3000/admin/register
    - Fill in details (name and email)
    - Password: any (remember it!)
-   - **Admin Secret Code**: `amolrushalisanjeevpratibha` (required!)
+   - **Admin Secret Code**: `amollrushalisanjeevpratibha` (required!)
    - Admin users are created with admin privileges only with correct secret code
 2. Login at http://localhost:3000/admin/login
 3. Navigate to http://localhost:3000/admin
@@ -233,7 +233,7 @@ All property listings include high-quality photos from Unsplash:
 
 ### Issue: Can't access admin dashboard
 **Solution**: 
-- Make sure you registered via /admin/register with the correct secret code: `amolrushalisanjeevpratibha`
+- Make sure you registered via /admin/register with the correct secret code: `amollrushalisanjeevpratibha`
 - Login via /admin/login
 - Navigate directly to /admin (not /admin/dashboard)
 

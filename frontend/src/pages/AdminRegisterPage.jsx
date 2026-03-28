@@ -21,7 +21,7 @@ const AdminRegisterPage = () => {
   const navigate = useNavigate();
 
   // Secret admin code
-  const ADMIN_SECRET_CODE = 'amolrushalisanjeevpratibha';
+  const ADMIN_SECRET_CODE = 'amollrushalisanjeevpratibha';
 
   const handleSubmit = async (e) => {
     e.preventDefault();

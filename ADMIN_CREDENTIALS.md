@@ -6,7 +6,7 @@ To create an admin account, you need the secret code.
 
 ### Admin Secret Code
 ```
-amolrushalisanjeevpratibha
+amollrushalisanjeevpratibha
 ```
 
 ## How to Register as Admin
@@ -17,7 +17,7 @@ amolrushalisanjeevpratibha
    - **Admin Email**: Your email address
    - **Password**: Choose a secure password (min 6 characters)
    - **Confirm Password**: Re-enter your password
-   - **Admin Secret Code**: `amolrushalisanjeevpratibha`
+   - **Admin Secret Code**: `amollrushalisanjeevpratibha`
 3. Click "Create Admin Account"
 4. You will be automatically logged in and redirected to the admin dashboard
 

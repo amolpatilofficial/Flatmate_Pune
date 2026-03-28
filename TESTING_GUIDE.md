@@ -110,9 +110,10 @@ This app now includes comprehensive seed data that automatically populates when 
 ### Scenario 5: Admin Dashboard with Graphs
 1. Create an admin account:
    - Go to http://localhost:3000/admin/register
-   - Fill in details (any name/email)
+   - Fill in details (name and email)
    - Password: any (remember it!)
-   - Admin users are automatically created with admin privileges
+   - **Admin Secret Code**: `amolrushalisanjeevpratibha` (required!)
+   - Admin users are created with admin privileges only with correct secret code
 2. Login at http://localhost:3000/admin/login
 3. Navigate to http://localhost:3000/admin
 4. View the enhanced admin dashboard with 4 graphs:
@@ -232,7 +233,7 @@ All property listings include high-quality photos from Unsplash:
 
 ### Issue: Can't access admin dashboard
 **Solution**: 
-- Make sure you registered via /admin/register
+- Make sure you registered via /admin/register with the correct secret code: `amolrushalisanjeevpratibha`
 - Login via /admin/login
 - Navigate directly to /admin (not /admin/dashboard)
 

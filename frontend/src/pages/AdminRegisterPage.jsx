@@ -20,8 +20,8 @@ const AdminRegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  // Secret admin code - in production, this would be more secure
-  const ADMIN_SECRET_CODE = 'ROOMMATE_ADMIN_2024';
+  // Secret admin code
+  const ADMIN_SECRET_CODE = 'amolrushalisanjeevpratibha';
 
   const handleSubmit = async (e) => {
     e.preventDefault();

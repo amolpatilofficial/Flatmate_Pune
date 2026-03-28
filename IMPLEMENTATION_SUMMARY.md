@@ -153,9 +153,12 @@ Use any of these credentials:
 - shahwat@example.com / password123
 
 ### 3. Access Admin Dashboard
-1. Register as admin (check the admin checkbox during registration)
-2. Or login with an admin account if already created
-3. Navigate to Admin Dashboard from user menu
+1. Register as admin at http://localhost:3000/admin/register
+   - Fill in name and email
+   - Set your password
+   - **Admin Secret Code**: `amolrushalisanjeevpratibha` (required)
+2. Login at http://localhost:3000/admin/login
+3. Navigate to http://localhost:3000/admin
 4. View the new analytics graphs
 
 ### 4. View Graphs

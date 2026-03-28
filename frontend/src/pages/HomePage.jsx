@@ -10,30 +10,30 @@ import { Search, Home, Shield, CheckCircle, Users, Heart, MapPin } from 'lucide-
 const HomePage = () => {
   const features = [
     {
-      icon: Users,
-      title: 'Find Perfect Flatmates',
-      description: 'Connect with verified people looking for flatmates in your area'
+      icon: Home,
+      title: 'Browse Verified Flats',
+      description: 'View flats with photos, amenities, and detailed information'
     },
     {
-      icon: Home,
-      title: 'Post Your Room',
-      description: 'Have a spare room? Find the perfect flatmate to share your space'
+      icon: Users,
+      title: 'Check Owner Profiles',
+      description: 'See complete background of flat owners before contacting'
     },
     {
       icon: Shield,
       title: 'Safe & Verified',
-      description: 'All profiles verified by our admin team for your safety'
+      description: 'All listings and profiles verified by our admin team'
     },
     {
       icon: Heart,
-      title: 'Perfect Match',
-      description: 'Filter by lifestyle preferences to find compatible flatmates'
+      title: 'Easy Connection',
+      description: 'Direct contact with verified owners once you have a profile'
     }
   ];
 
   const stats = [
-    { value: '500+', label: 'Active Users' },
-    { value: '200+', label: 'Successful Matches' },
+    { value: '500+', label: 'Verified Flats' },
+    { value: '200+', label: 'Happy Tenants' },
     { value: '15+', label: 'Areas in Pune' },
     { value: '24/7', label: 'Support' }
   ];
@@ -41,18 +41,18 @@ const HomePage = () => {
   const howItWorks = [
     {
       step: '1',
-      title: 'Create Your Profile',
-      description: 'Sign up and tell us about yourself and what you\'re looking for'
+      title: 'Browse or Sign Up',
+      description: 'Browse available flats or sign up to list your property'
     },
     {
       step: '2',
-      title: 'Browse Flatmates',
-      description: 'Search through verified profiles and find compatible flatmates'
+      title: 'Create Your Profile',
+      description: 'Complete your profile with details to build trust and credibility'
     },
     {
       step: '3',
       title: 'Connect & Move In',
-      description: 'Contact directly and finalize your flatmate arrangement'
+      description: 'View owner profiles, contact directly and finalize your living arrangement'
     }
   ];
 
@@ -69,23 +69,23 @@ const HomePage = () => {
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-foreground leading-tight">
               Find Your Perfect
-              <span className="text-primary"> Room</span> in
+              <span className="text-primary"> Flat</span> in
               <span className="text-accent"> Pune</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Browse verified rooms with photos, connect with owners, and find your ideal living space in Pune.
+              Browse verified flats with photos, check owner profiles, and find your ideal living space in Pune.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              <Link to="/find-rooms">
+              <Link to="/browse-flats">
                 <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8">
                   <Search className="mr-2 h-5 w-5" />
-                  Find Rooms
+                  Browse Flats
                 </Button>
               </Link>
-              <Link to="/post-flatmate">
+              <Link to="/register">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg px-8 border-accent text-accent hover:bg-accent hover:text-accent-foreground">
                   <Home className="mr-2 h-5 w-5" />
-                  Post Your Room
+                  List Your Flat
                 </Button>
               </Link>
             </div>
@@ -141,10 +141,10 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              Why Choose RoomMate?
+              Why Choose FlatMate Pune?
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              We make finding your perfect flatmate simple, safe, and hassle-free
+              We make finding your perfect flat simple, safe, and transparent
             </p>
           </div>
 

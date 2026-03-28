@@ -60,8 +60,8 @@ const RegisterPage = () => {
     setTimeout(() => {
       const { password, ...userWithoutPassword } = newUser;
       register(userWithoutPassword);
-      toast.success('Account created successfully!');
-      navigate('/');
+      toast.success('Account created successfully! Please complete your profile.');
+      navigate('/create-profile');
       setLoading(false);
     }, 800);
   };

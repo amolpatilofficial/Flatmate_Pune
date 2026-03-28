@@ -6,12 +6,13 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
+import CreateProfilePage from '@/pages/CreateProfilePage';
+import BrowseFlatsPage from '@/pages/BrowseFlatsPage';
+import FlatDetailPage from '@/pages/FlatDetailPage';
+import PostPropertyPage from '@/pages/PostPropertyPage';
+import MyListingsPage from '@/pages/MyListingsPage';
 import AdminLoginPage from '@/pages/AdminLoginPage';
 import AdminRegisterPage from '@/pages/AdminRegisterPage';
-import FindRoomsPage from '@/pages/FindRoomsPage';
-import RoomDetailPage from '@/pages/RoomDetailPage';
-import PostFlatmatePage from '@/pages/PostFlatmatePage';
-import MyFlatmateProfilePage from '@/pages/MyFlatmateProfilePage';
 import AdminDashboard from '@/pages/AdminDashboard';
 import { seedMockData } from '@/utils/seedData';
 import '@/App.css';
@@ -27,11 +28,40 @@ function App() {
       <BrowserRouter>
         <div className="App">
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/browse-flats" element={<BrowseFlatsPage />} />
+            <Route path="/flat/:id" element={<FlatDetailPage />} />
             
-            {/* Admin Routes - Separate from regular user flow */}
+            {/* Protected Routes - Require Login */}
+            <Route 
+              path="/create-profile" 
+              element={
+                <ProtectedRoute>
+                  <CreateProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/post-property" 
+              element={
+                <ProtectedRoute>
+                  <PostPropertyPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-listings" 
+              element={
+                <ProtectedRoute>
+                  <MyListingsPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/register" element={<AdminRegisterPage />} />
             <Route 
@@ -43,30 +73,14 @@ function App() {
               } 
             />
             
-            {/* Main Room Finding Routes */}
-            <Route path="/find-rooms" element={<FindRoomsPage />} />
-            <Route path="/room/:id" element={<RoomDetailPage />} />
-            
             {/* Legacy routes - redirect to new structure */}
-            <Route path="/find-flatmate" element={<Navigate to="/find-rooms" replace />} />
-            <Route path="/flatmate/:id" element={<Navigate to="/room/:id" replace />} />
+            <Route path="/find-rooms" element={<Navigate to="/browse-flats" replace />} />
+            <Route path="/room/:id" element={<Navigate to="/flat/:id" replace />} />
+            <Route path="/post-flatmate" element={<Navigate to="/create-profile" replace />} />
+            <Route path="/find-flatmate" element={<Navigate to="/browse-flats" replace />} />
+            <Route path="/flatmate/:id" element={<Navigate to="/flat/:id" replace />} />
+            <Route path="/my-flatmate-profile" element={<Navigate to="/my-listings" replace />} />
             
-            <Route 
-              path="/post-flatmate" 
-              element={
-                <ProtectedRoute>
-                  <PostFlatmatePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/my-flatmate-profile" 
-              element={
-                <ProtectedRoute>
-                  <MyFlatmateProfilePage />
-                </ProtectedRoute>
-              } 
-            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Toaster position="top-right" />

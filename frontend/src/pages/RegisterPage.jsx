@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Home, Mail, Lock, User } from 'lucide-react';
 
@@ -36,34 +35,21 @@ const RegisterPage = () => {
       return;
     }
 
-    // Mock registration - store in localStorage
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    
-    if (users.find(u => u.email === formData.email)) {
-      toast.error('Email already registered');
-      setLoading(false);
-      return;
-    }
-
     const newUser = {
-      id: Date.now().toString(),
       name: formData.name,
       email: formData.email,
-      password: formData.password,
-      isAdmin: false, // Regular users are never admin
-      createdAt: new Date().toISOString()
+      password: formData.password
     };
 
-    users.push(newUser);
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
+    const result = await register(newUser);
 
-    setTimeout(() => {
-      const { password, ...userWithoutPassword } = newUser;
-      register(userWithoutPassword);
+    if (result && result.success) {
       toast.success('Account created successfully! Please complete your profile.');
       navigate('/create-profile');
-      setLoading(false);
-    }, 800);
+    } else {
+      toast.error((result && result.error) || 'Registration failed');
+    }
+    setLoading(false);
   };
 
   return (
@@ -72,7 +58,7 @@ const RegisterPage = () => {
         <CardHeader className="space-y-4 text-center">
           <Link to="/" className="inline-flex items-center justify-center space-x-2 mx-auto">
             <Home className="h-6 w-6 text-primary" />
-            <span className="text-2xl font-bold">RoomMate<span className="text-primary">.</span></span>
+            <span className="text-2xl font-bold">RoomYaar<span className="text-primary">.</span></span>
           </Link>
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>
@@ -141,9 +127,9 @@ const RegisterPage = () => {
                 />
               </div>
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-primary hover:bg-primary/90" 
+            <Button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary/90"
               disabled={loading}
             >
               {loading ? 'Creating account...' : 'Create Account'}

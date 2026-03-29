@@ -179,7 +179,7 @@ const HomePage = () => {
                 Ready to Find Your Perfect Flatmate?
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Join hundreds of people who found their ideal living situation through RoomMate
+                Join hundreds of people who found their ideal living situation through RoomYaar
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <Link to="/register">

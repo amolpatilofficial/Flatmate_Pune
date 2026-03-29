@@ -1,5 +1,6 @@
-// Seed data for demo purposes with automated user creation
-export const seedMockData = () => {
+import api from '../api';
+
+export const seedMockData = async () => {
   // First, create test users
   const users = [
     // 4 users posting flats
@@ -62,24 +63,8 @@ export const seedMockData = () => {
     }
   ];
 
-  // Store users in localStorage
-  const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-  const mergedUsers = [...existingUsers];
-  
-  users.forEach(user => {
-    if (!mergedUsers.find(u => u.email === user.email)) {
-      mergedUsers.push(user);
-    }
-  });
-  
-  localStorage.setItem('registeredUsers', JSON.stringify(mergedUsers));
-  console.log('Test users created successfully!');
-
-  // Check if data already exists
-  const existingListings = localStorage.getItem('propertyListings');
-  if (existingListings && JSON.parse(existingListings).length > 0) {
-    return; // Don't overwrite existing data
-  }
+  // Only send the payload to seed if we haven't already
+  if (localStorage.getItem('db_seeded')) return;
 
   // Property listings posted by Onkar, Faiz, Rajat, and Junied
   const mockListings = [
@@ -312,125 +297,15 @@ export const seedMockData = () => {
     }
   ];
 
-  localStorage.setItem('propertyListings', JSON.stringify(mockListings));
-  console.log('Mock data seeded successfully!');
-  
-  // Flatmate profiles for Yogesh, Prashant, and Shahwat (searching for rooms)
-  const mockFlatmates = [
-    // Yogesh - Software Engineer looking for room
-    {
-      id: 'flatmate-yogesh',
-      name: 'Yogesh',
-      age: 26,
-      gender: 'male',
-      occupation: 'Software Engineer',
-      preferredArea: 'Hinjewadi',
-      budget: 12000,
-      hasPlace: false,
-      lookingFor: 'male',
-      vegetarian: true,
-      smoking: false,
-      drinking: false,
-      petFriendly: true,
-      description: 'Hi! I\'m Yogesh, a software engineer working at a tech company in Hinjewadi. Looking for a clean, peaceful flatmate who values work-life balance. I enjoy reading, coding, and weekend treks. Non-smoker and vegetarian. Prefer someone with similar interests and a positive vibe!',
-      phone: '9876505678',
-      userId: 'user-yogesh',
-      userEmail: 'yogesh@example.com',
-      status: 'approved',
-      createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    
-    // Prashant - Marketing Professional looking for room
-    {
-      id: 'flatmate-prashant',
-      name: 'Prashant',
-      age: 28,
-      gender: 'male',
-      occupation: 'Marketing Professional',
-      preferredArea: 'Koregaon Park',
-      budget: 15000,
-      hasPlace: false,
-      lookingFor: 'any',
-      vegetarian: false,
-      smoking: false,
-      drinking: true,
-      petFriendly: false,
-      description: 'Hey, Prashant here! I work in marketing and love the vibrant culture of Koregaon Park. Looking for a flatmate who is social yet respects personal space. I enjoy trying new cafes, working out, and weekend get-togethers. Open to sharing with both male or female flatmates. Let\'s make living together fun!',
-      phone: '9876506789',
-      userId: 'user-prashant',
-      userEmail: 'prashant@example.com',
-      status: 'approved',
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    
-    // Shahwat - Data Analyst looking for room  
-    {
-      id: 'flatmate-shahwat',
-      name: 'Shahwat',
-      age: 25,
-      gender: 'male',
-      occupation: 'Data Analyst',
-      preferredArea: 'Baner',
-      budget: 10000,
-      hasPlace: false,
-      lookingFor: 'male',
-      vegetarian: false,
-      smoking: false,
-      drinking: true,
-      petFriendly: false,
-      description: 'Hello! I\'m Shahwat, working as a data analyst in Baner. I\'m a quiet, organized person who likes to keep things clean and tidy. I love gaming, watching movies, and playing cricket on weekends. Looking for a responsible male flatmate who can share household chores and has a similar lifestyle. Non-smoker preferred!',
-      phone: '9876507890',
-      userId: 'user-shahwat',
-      userEmail: 'shahwat@example.com',
-      status: 'approved',
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    
-    // Additional flatmate profiles for variety
-    {
-      id: 'flatmate-1',
-      name: 'Rohan Mehta',
-      age: 26,
-      gender: 'male',
-      occupation: 'Software Engineer',
-      preferredArea: 'Wakad',
-      budget: 10000,
-      hasPlace: false,
-      lookingFor: 'male',
-      vegetarian: true,
-      smoking: false,
-      drinking: false,
-      petFriendly: false,
-      description: 'Working professional at a tech company. Looking for a clean, quiet flatmate who values personal space. I enjoy reading, coding, and occasional outdoor activities. Non-smoker and vegetarian. Prefer someone with similar lifestyle.',
-      phone: '9876543220',
-      userId: 'demo-flatmate-user-1',
-      userEmail: 'rohan.mehta@example.com',
-      status: 'approved',
-      createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'flatmate-2',
-      name: 'Priya Sharma',
-      age: 24,
-      gender: 'female',
-      occupation: 'Marketing Manager',
-      preferredArea: 'Viman Nagar',
-      budget: 15000,
-      hasPlace: true,
-      lookingFor: 'female',
-      vegetarian: true,
-      smoking: false,
-      drinking: true,
-      petFriendly: true,
-      description: 'I have a 2BHK in Viman Nagar and looking for a female flatmate. I work in marketing and love to travel on weekends. Pet friendly household - I have a cat! Looking for someone who is clean, responsible, and friendly.',
-      phone: '9876543221',
-      userId: 'demo-flatmate-user-2',
-      userEmail: 'priya.sharma@example.com',
-      status: 'approved',
-      createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ];
-  
-  localStorage.setItem('flatmateProfiles', JSON.stringify(mockFlatmates));
-  console.log('Mock flatmate profiles seeded successfully!');
+  try {
+    await api.post('/seed', {
+      users: users,
+      properties: mockListings,
+      profiles: mockFlatmates
+    });
+    localStorage.setItem('db_seeded', 'true');
+    console.log('Database seeded successfully from backend via API!');
+  } catch (error) {
+    console.error('Failed to seed DB', error);
+  }
 };

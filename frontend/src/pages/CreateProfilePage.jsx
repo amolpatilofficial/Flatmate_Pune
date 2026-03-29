@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import api from '@/api';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -25,10 +26,10 @@ const CreateProfilePage = () => {
     city: 'Pune',
     area: '',
     bio: '',
-    hasRoom: 'no' // Default: user doesn't have a room to rent
+    role: 'roommate_seeker' // Default: looking for a room
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.age || !formData.gender || !formData.occupation || !formData.phone || !formData.area) {
@@ -36,30 +37,39 @@ const CreateProfilePage = () => {
       return;
     }
 
-    // Save profile to localStorage
-    const profiles = JSON.parse(localStorage.getItem('userProfiles') || '[]');
-    
-    const newProfile = {
-      id: `profile-${user.id}`,
-      userId: user.id,
-      userEmail: user.email,
-      ...formData,
-      createdAt: new Date().toISOString()
-    };
+    try {
+      const newProfile = {
+        userId: user?.id,
+        userEmail: user?.email,
+        name: formData.fullName,
+        age: parseInt(formData.age),
+        gender: formData.gender,
+        occupation: formData.occupation,
+        phone: formData.phone,
+        preferredArea: formData.area,
+        description: formData.bio || '',
+        budget: 0,
+        role: formData.role,
+        lookingFor: 'any',
+        vegetarian: false,
+        smoking: false,
+        drinking: false,
+        petFriendly: false,
+        status: 'approved'
+      };
 
-    // Remove existing profile for this user if any
-    const updatedProfiles = profiles.filter(p => p.userId !== user.id);
-    updatedProfiles.push(newProfile);
-    
-    localStorage.setItem('userProfiles', JSON.stringify(updatedProfiles));
-
-    toast.success('Profile created successfully!');
-    
-    // Redirect based on whether they have a room to rent
-    if (formData.hasRoom === 'yes') {
-      navigate('/post-property');
-    } else {
-      navigate('/browse-flats');
+      await api.post('/profiles', newProfile);
+      toast.success('Profile created successfully!');
+      
+      // Redirect based on role
+      if (formData.role === 'pg_owner' || formData.role === 'flat_owner') {
+        navigate('/post-property');
+      } else {
+        navigate('/browse-flats');
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to create profile');
     }
   };
 
@@ -209,31 +219,37 @@ const CreateProfilePage = () => {
                   </div>
                 </div>
 
-                {/* Do you have a room to rent? */}
+                {/* User Role */}
                 <div className="space-y-3 bg-secondary/30 p-4 rounded-lg">
-                  <Label className="text-base font-semibold">Do you have a room/flat to rent out?</Label>
+                  <Label className="text-base font-semibold">Who are you?</Label>
                   <RadioGroup
-                    value={formData.hasRoom}
-                    onValueChange={(value) => setFormData({...formData, hasRoom: value})}
-                    className="flex gap-6"
+                    value={formData.role}
+                    onValueChange={(value) => setFormData({...formData, role: value})}
+                    className="flex flex-col gap-3 pt-2"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="hasRoom-yes" />
-                      <Label htmlFor="hasRoom-yes" className="cursor-pointer">
-                        Yes, I want to list my property
+                      <RadioGroupItem value="roommate_seeker" id="role-seeker" />
+                      <Label htmlFor="role-seeker" className="cursor-pointer font-normal">
+                        <strong>Roommate Seeker:</strong> I am looking for a room or flatmate
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="hasRoom-no" />
-                      <Label htmlFor="hasRoom-no" className="cursor-pointer">
-                        No, I'm looking for a room
+                      <RadioGroupItem value="flat_owner" id="role-flat" />
+                      <Label htmlFor="role-flat" className="cursor-pointer font-normal">
+                        <strong>Flat Owner / Tenant:</strong> I have a private flat/room and need a flatmate
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="pg_owner" id="role-pg" />
+                      <Label htmlFor="role-pg" className="cursor-pointer font-normal">
+                        <strong>PG Owner / Manager:</strong> I run a Paying Guest accommodation
                       </Label>
                     </div>
                   </RadioGroup>
-                  <p className="text-xs text-muted-foreground">
-                    {formData.hasRoom === 'yes' 
-                      ? "You'll be redirected to post your property after creating your profile"
-                      : "You'll be able to browse available rooms after creating your profile"
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {formData.role === 'roommate_seeker' 
+                      ? "You'll be able to browse available rooms after creating your profile."
+                      : "You'll be redirected to post your property after creating your profile."
                     }
                   </p>
                 </div>

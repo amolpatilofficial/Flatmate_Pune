@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
+import api from '@/api';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -17,7 +18,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { MapPin, Trash2, Plus, Eye } from 'lucide-react';
+import { MapPin, Trash2, Plus, Eye, Edit } from 'lucide-react';
 
 const MyListingsPage = () => {
   const { user } = useAuth();
@@ -25,22 +26,30 @@ const MyListingsPage = () => {
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
-    loadListings();
+    if (user?.id) {
+      loadListings();
+    }
+  }, [user, loadListings]);
+
+  const loadListings = useCallback(async () => {
+    try {
+      const res = await api.get('/properties');
+      const userListings = res.data.filter(l => l.ownerId === user?.id);
+      setListings(userListings);
+    } catch (e) {
+      console.error('Failed to load listings', e);
+    }
   }, [user]);
 
-  const loadListings = () => {
-    const allListings = JSON.parse(localStorage.getItem('propertyListings') || '[]');
-    const userListings = allListings.filter(l => l.ownerId === user?.id);
-    setListings(userListings);
-  };
-
-  const handleDelete = (id) => {
-    const allListings = JSON.parse(localStorage.getItem('propertyListings') || '[]');
-    const updated = allListings.filter(l => l.id !== id);
-    localStorage.setItem('propertyListings', JSON.stringify(updated));
-    loadListings();
-    toast.success('Listing deleted successfully');
-    setDeleteId(null);
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/properties/${id}`);
+      loadListings();
+      toast.success('Listing deleted successfully');
+      setDeleteId(null);
+    } catch (e) {
+      toast.error('Failed to delete listing');
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -95,11 +104,18 @@ const MyListingsPage = () => {
             {listings.map((listing) => (
               <Card key={listing.id} className="overflow-hidden hover:shadow-elegant-lg transition-all duration-300">
                 <div className="aspect-video bg-gradient-to-br from-secondary to-muted relative overflow-hidden">
-                  <img 
-                    src={listing.image || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop`}
-                    alt={listing.title}
-                    className="w-full h-full object-cover"
-                  />
+                  {/* 4-Image Collage */}
+                  <div className="w-full h-full grid grid-cols-2 grid-rows-2 gap-0.5">
+                    {[0, 1, 2, 3].map((idx) => (
+                      <div key={idx} className="relative overflow-hidden">
+                        <img 
+                          src={listing.images?.[idx] || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&h=200&fit=crop`}
+                          alt={`${listing.title} ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
                   <div className="absolute top-3 right-3">
                     {getStatusBadge(listing.status)}
                   </div>
@@ -125,10 +141,16 @@ const MyListingsPage = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex gap-2">
-                  <Link to={`/property/${listing.id}`} className="flex-1">
+                  <Link to={`/flat/${listing.id}`} className="flex-1">
                     <Button variant="outline" className="w-full">
                       <Eye className="h-4 w-4 mr-2" />
                       View
+                    </Button>
+                  </Link>
+                  <Link to={`/edit-property/${listing.id}`} className="flex-1">
+                    <Button variant="outline" className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
                     </Button>
                   </Link>
                   <Button 

@@ -9,11 +9,15 @@ import RegisterPage from '@/pages/RegisterPage';
 import CreateProfilePage from '@/pages/CreateProfilePage';
 import BrowseFlatsPage from '@/pages/BrowseFlatsPage';
 import FlatDetailPage from '@/pages/FlatDetailPage';
+import PropertyDetailPage from '@/pages/PropertyDetailPage';
 import PostPropertyPage from '@/pages/PostPropertyPage';
+import EditPropertyPage from '@/pages/EditPropertyPage';
 import MyListingsPage from '@/pages/MyListingsPage';
 import AdminLoginPage from '@/pages/AdminLoginPage';
 import AdminRegisterPage from '@/pages/AdminRegisterPage';
 import AdminDashboard from '@/pages/AdminDashboard';
+import PostFlatmatePage from '@/pages/PostFlatmatePage';
+import MyFlatmateProfilePage from '@/pages/MyFlatmateProfilePage';
 import { seedMockData } from '@/utils/seedData';
 import '@/App.css';
 
@@ -34,6 +38,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/browse-flats" element={<BrowseFlatsPage />} />
             <Route path="/flat/:id" element={<FlatDetailPage />} />
+            <Route path="/property/:id" element={<PropertyDetailPage />} />
             
             {/* Protected Routes - Require Login */}
             <Route 
@@ -60,6 +65,40 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/edit-property/:id" 
+              element={
+                <ProtectedRoute>
+                  <EditPropertyPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/post-flatmate" 
+              element={
+                <ProtectedRoute>
+                  <PostFlatmatePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-flatmate-profile" 
+              element={
+                <ProtectedRoute>
+                  <MyFlatmateProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/edit-flatmate/:id" 
+              element={
+                <ProtectedRoute>
+                  <PostFlatmatePage />
+                </ProtectedRoute>
+              } 
+            />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -76,10 +115,8 @@ function App() {
             {/* Legacy routes - redirect to new structure */}
             <Route path="/find-rooms" element={<Navigate to="/browse-flats" replace />} />
             <Route path="/room/:id" element={<Navigate to="/flat/:id" replace />} />
-            <Route path="/post-flatmate" element={<Navigate to="/create-profile" replace />} />
             <Route path="/find-flatmate" element={<Navigate to="/browse-flats" replace />} />
             <Route path="/flatmate/:id" element={<Navigate to="/flat/:id" replace />} />
-            <Route path="/my-flatmate-profile" element={<Navigate to="/my-listings" replace />} />
             
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

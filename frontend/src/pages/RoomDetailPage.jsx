@@ -23,7 +23,7 @@ const RoomDetailPage = () => {
 
   useEffect(() => {
     const profiles = JSON.parse(localStorage.getItem('flatmateProfiles') || '[]');
-    const found = profiles.find(p => p.id === id && p.hasPlace === true);
+    const found = profiles.find(p => p.id === id && p.role === 'flat_owner');
     if (found) {
       setRoom(found);
     } else {

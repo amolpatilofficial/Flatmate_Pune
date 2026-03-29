@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +12,7 @@ import { toast } from 'sonner';
 import { 
   ArrowLeft, MapPin, Home as HomeIcon, Bed, Bath, Wifi, Tv, 
   Wind, Refrigerator, Droplets, User, Briefcase, Phone, Mail,
-  Shield, CheckCircle
+  Shield, CheckCircle, XCircle
 } from 'lucide-react';
 
 const FlatDetailPage = () => {
@@ -21,40 +22,75 @@ const FlatDetailPage = () => {
   const [flat, setFlat] = useState(null);
   const [ownerProfile, setOwnerProfile] = useState(null);
   const [showContact, setShowContact] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
-    // Load flat details
-    const allListings = JSON.parse(localStorage.getItem('propertyListings') || '[]');
-    const flatData = allListings.find(l => l.id === id);
-    
-    if (flatData) {
-      setFlat(flatData);
-      
-      // Load owner profile
-      const profiles = JSON.parse(localStorage.getItem('userProfiles') || '[]');
-      const owner = profiles.find(p => p.userId === flatData.ownerId);
-      setOwnerProfile(owner);
-    }
-  }, [id]);
+    const fetchData = async () => {
+      try {
+        const propRes = await api.get(`/properties/${id}`);
+        const flatData = propRes.data;
+        
+        if (flatData) {
+          setFlat(flatData);
+          
+          try {
+            const profRes = await api.get('/profiles');
+            const owner = profRes.data.find(p => p.userId === flatData.ownerId);
+            setOwnerProfile(owner);
+          } catch(e) { console.error('Error fetching owner', e); }
+        }
+      } catch (e) { 
+        console.error('Error fetching flat', e);
+        toast.error('Property not found');
+        navigate('/browse-flats');
+      }
+    };
+    fetchData();
+  }, [id, navigate]);
 
-  const handleViewContact = () => {
+  const handleViewContact = async () => {
     if (!user) {
       toast.error('Please sign up or login to view contact details');
       navigate('/register');
       return;
     }
 
-    // Check if user has a profile
-    const profiles = JSON.parse(localStorage.getItem('userProfiles') || '[]');
-    const userProfile = profiles.find(p => p.userId === user.id);
-    
-    if (!userProfile) {
-      toast.error('Please complete your profile first');
-      navigate('/create-profile');
-      return;
-    }
+    try {
+      const profRes = await api.get('/profiles');
+      const userProfile = profRes.data.find(p => p.userId === user.id);
+      
+      if (!userProfile) {
+        toast.error('Please complete your profile first');
+        navigate('/create-profile');
+        return;
+      }
 
-    setShowContact(true);
+      setShowContact(true);
+    } catch (e) {
+      toast.error('Could not verify profile');
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      await api.put(`/properties/${id}/status`, { status: 'approved' });
+      toast.success('Property approved successfully');
+      navigate('/admin');
+    } catch (error) {
+      console.error('Failed to approve property', error);
+      toast.error('Failed to approve property');
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      await api.put(`/properties/${id}/status`, { status: 'rejected' });
+      toast.success('Property rejected successfully');
+      navigate('/admin');
+    } catch (error) {
+      console.error('Failed to reject property', error);
+      toast.error('Failed to reject property');
+    }
   };
 
   if (!flat) {
@@ -97,10 +133,11 @@ const FlatDetailPage = () => {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Image */}
+              {/* Image Gallery */}
               <Card className="overflow-hidden">
                 <div className="aspect-video relative">
                   <img
-                    src={flat.image || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop`}
+                    src={flat.images?.[selectedImage] || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop`}
                     alt={flat.title}
                     className="w-full h-full object-cover"
                   />
@@ -120,6 +157,26 @@ const FlatDetailPage = () => {
                     )}
                   </div>
                 </div>
+                {/* Thumbnail Strip */}
+                {flat.images?.length > 1 && (
+                  <div className="grid grid-cols-4 gap-1 p-1 bg-muted">
+                    {[0, 1, 2, 3].map((idx) => (
+                      flat.images?.[idx] && (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedImage(idx)}
+                          className={`aspect-video overflow-hidden rounded-sm transition-all ${selectedImage === idx ? 'ring-2 ring-primary opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                        >
+                          <img
+                            src={flat.images[idx]}
+                            alt={`${flat.title} ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      )
+                    ))}
+                  </div>
+                )}
               </Card>
 
               {/* Details */}
@@ -341,6 +398,51 @@ const FlatDetailPage = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Admin Actions */}
+              {user?.role === 'admin' && (
+                <Card className="border-primary/50 shadow-elegant-lg bg-primary/5">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-primary" />
+                      Admin Controls
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Carefully review all details, including developer info and amenities, before taking action.
+                    </p>
+                    
+                    {flat.status === 'pending' ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                          onClick={handleApprove}
+                        >
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Approve
+                        </Button>
+                        <Button 
+                          variant="destructive"
+                          onClick={handleReject}
+                        >
+                          <XCircle className="h-4 w-4 mr-2" />
+                          Reject
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button 
+                        variant="outline"
+                        className="w-full border-destructive text-destructive hover:bg-destructive/10"
+                        onClick={handleReject}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        {flat.status === 'approved' ? 'Revoke Approval' : 'Keep Rejected'}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

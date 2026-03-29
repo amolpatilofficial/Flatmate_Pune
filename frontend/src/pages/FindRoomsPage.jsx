@@ -22,9 +22,9 @@ const FindRoomsPage = () => {
   }, []);
 
   const loadRooms = () => {
-    // Load only profiles where people HAVE a place to share (hasPlace: true)
+    // Load only profiles where people HAVE a place to share (role === 'flat_owner')
     const profiles = JSON.parse(localStorage.getItem('flatmateProfiles') || '[]');
-    const roomsAvailable = profiles.filter(p => p.status === 'approved' && p.hasPlace === true);
+    const roomsAvailable = profiles.filter(p => p.status === 'approved' && p.role === 'flat_owner');
     setRoomListings(roomsAvailable);
     setFilteredListings(roomsAvailable);
   };
@@ -96,7 +96,8 @@ const FindRoomsPage = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="pg">PG (Paying Guest)</SelectItem>
+                <SelectItem value="pg">PG</SelectItem>
+                <SelectItem value="private_flat">Private Flat</SelectItem>
                 <SelectItem value="rent">Rental Property</SelectItem>
               </SelectContent>
             </Select>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -18,11 +19,17 @@ const BrowseFlatsPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load all approved and pending listings (show everything except rejected)
-    const allListings = JSON.parse(localStorage.getItem('propertyListings') || '[]');
-    const visibleFlats = allListings.filter(l => l.status !== 'rejected');
-    setFlats(visibleFlats);
-    setFilteredFlats(visibleFlats);
+    const fetchFlats = async () => {
+      try {
+        const res = await api.get('/properties');
+        const visibleFlats = res.data.filter(l => l.status === 'approved');
+        setFlats(visibleFlats);
+        setFilteredFlats(visibleFlats);
+      } catch (e) {
+        console.error('Failed to fetch flats', e);
+      }
+    };
+    fetchFlats();
   }, []);
 
   useEffect(() => {
@@ -151,11 +158,17 @@ const BrowseFlatsPage = () => {
                     onClick={() => navigate(`/flat/${flat.id}`)}
                   >
                     <div className="aspect-video bg-gradient-to-br from-secondary to-muted relative overflow-hidden">
-                      <img
-                        src={flat.image || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop`}
-                        alt={flat.title}
-                        className="w-full h-full object-cover"
-                      />
+                      <div className="w-full h-full grid grid-cols-2 grid-rows-2 gap-0.5">
+                        {[0, 1, 2, 3].map((idx) => (
+                          <div key={idx} className="relative overflow-hidden">
+                            <img
+                              src={flat.images?.[idx] || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&h=200&fit=crop`}
+                              alt={`${flat.title} ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
                       <div className="absolute top-3 right-3 flex gap-2">
                         <Badge className={getCategoryBadge(flat.category)}>
                           {flat.category.toUpperCase()}

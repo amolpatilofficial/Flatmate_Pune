@@ -45,34 +45,22 @@ const AdminRegisterPage = () => {
       return;
     }
 
-    // Mock registration - store in localStorage
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    
-    if (users.find(u => u.email === formData.email)) {
-      toast.error('Email already registered');
-      setLoading(false);
-      return;
-    }
-
     const newAdmin = {
-      id: Date.now().toString(),
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      isAdmin: true,
-      createdAt: new Date().toISOString()
+      isAdmin: true
     };
 
-    users.push(newAdmin);
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
-
-    setTimeout(() => {
-      const { password, ...userWithoutPassword } = newAdmin;
-      register(userWithoutPassword);
+    const result = await register(newAdmin);
+    
+    if (result && result.success) {
       toast.success('Admin account created successfully!');
       navigate('/admin');
-      setLoading(false);
-    }, 800);
+    } else {
+      toast.error((result && result.error) || 'Registration failed');
+    }
+    setLoading(false);
   };
 
   return (

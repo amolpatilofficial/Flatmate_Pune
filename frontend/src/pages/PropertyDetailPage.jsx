@@ -4,13 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import api from '@/api';
 import { 
   MapPin, Bed, Bath, Wifi, Droplet, Tv, Wind, Refrigerator, 
-  Phone, Mail, User, Home, ArrowLeft, CheckCircle, Building2 
+  Phone, Mail, User, Home, ArrowLeft, CheckCircle, Building2, XCircle, Shield
 } from 'lucide-react';
 
 const PropertyDetailPage = () => {
@@ -19,16 +20,20 @@ const PropertyDetailPage = () => {
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
   const [showContact, setShowContact] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
-    const allListings = JSON.parse(localStorage.getItem('propertyListings') || '[]');
-    const found = allListings.find(l => l.id === id);
-    if (found) {
-      setProperty(found);
-    } else {
-      toast.error('Property not found');
-      navigate('/');
-    }
+    const fetchData = async () => {
+      try {
+        const res = await api.get(`/properties/${id}`);
+        setProperty(res.data);
+      } catch (error) {
+        console.error('Failed to load property', error);
+        toast.error('Property not found');
+        navigate('/');
+      }
+    };
+    fetchData();
   }, [id, navigate]);
 
   if (!property) {
@@ -57,6 +62,28 @@ const PropertyDetailPage = () => {
     toast.success('Contact details revealed');
   };
 
+  const handleApprove = async () => {
+    try {
+      await api.put(`/properties/${id}/status`, { status: 'approved' });
+      toast.success('Property approved successfully');
+      navigate('/admin');
+    } catch (error) {
+      console.error('Failed to approve property', error);
+      toast.error('Failed to approve property');
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      await api.put(`/properties/${id}/status`, { status: 'rejected' });
+      toast.success('Property rejected successfully');
+      navigate('/admin');
+    } catch (error) {
+      console.error('Failed to reject property', error);
+      toast.error('Failed to reject property');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -75,13 +102,34 @@ const PropertyDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Image */}
-            <div className="aspect-video rounded-xl overflow-hidden shadow-elegant-lg">
-              <img 
-                src={property.image || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&h=800&fit=crop`}
-                alt={property.title}
-                className="w-full h-full object-cover"
-              />
+            {/* Image Gallery */}
+            <div className="space-y-1">
+              <div className="aspect-video rounded-xl overflow-hidden shadow-elegant-lg">
+                <img 
+                  src={property.images?.[selectedImage] || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&h=800&fit=crop`}
+                  alt={property.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {property.images?.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {[0, 1, 2, 3].map((idx) => (
+                    property.images?.[idx] && (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImage(idx)}
+                        className={`aspect-video overflow-hidden rounded-lg transition-all ${selectedImage === idx ? 'ring-2 ring-primary opacity-100' : 'opacity-60 hover:opacity-100'}`}
+                      >
+                        <img
+                          src={property.images[idx]}
+                          alt={`${property.title} ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    )
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Title & Location */}
@@ -268,6 +316,51 @@ const PropertyDetailPage = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Admin Actions */}
+            {user?.role === 'admin' && (
+              <Card className="mt-6 border-primary/50 shadow-elegant-lg bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Admin Controls
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Carefully review all details, including developer info and amenities, before taking action.
+                  </p>
+                  
+                  {property.status === 'pending' ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold"
+                        onClick={handleApprove}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Approve
+                      </Button>
+                      <Button 
+                        variant="destructive"
+                        onClick={handleReject}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Reject
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="outline"
+                      className="w-full border-destructive text-destructive hover:bg-destructive/10"
+                      onClick={handleReject}
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      {property.status === 'approved' ? 'Revoke Approval' : 'Keep Rejected'}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

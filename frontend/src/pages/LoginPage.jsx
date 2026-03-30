@@ -42,7 +42,7 @@ const LoginPage = () => {
         <CardHeader className="space-y-4 text-center">
           <Link to="/" className="inline-flex items-center justify-center space-x-2 mx-auto">
             <Home className="h-6 w-6 text-primary" />
-            <span className="text-2xl font-bold">RoomMate<span className="text-primary">.</span></span>
+            <span className="text-2xl font-bold">RoomYaar<span className="text-primary">.</span></span>
           </Link>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>

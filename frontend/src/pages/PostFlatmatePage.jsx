@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -12,14 +12,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { User, Briefcase, MapPin, IndianRupee, Calendar, Upload, X } from 'lucide-react';
+import api from '@/api';
+import { User, Briefcase, MapPin, IndianRupee, Calendar, Upload, X, Loader2 } from 'lucide-react';
 
 const PostFlatmatePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = !!id;
+  
   const [loading, setLoading] = useState(false);
-  const [roomPhotos, setRoomPhotos] = useState([]);
-  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [fetching, setFetching] = useState(isEditMode);
+  const [roomPhotos, setRoomPhotos] = useState([]); // Stores {id, url, isExisting}
+  const [photoFiles, setPhotoFiles] = useState([]); // Stores actual File objects for new uploads
   
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -28,14 +33,13 @@ const PostFlatmatePage = () => {
     occupation: '',
     preferredArea: '',
     budget: '',
-    hasPlace: false,
-    roomType: 'pg', // pg or rent
+    role: 'roommate_seeker',
+    roomType: 'pg',
     lookingFor: 'any',
     vegetarian: false,
     smoking: false,
     drinking: false,
     petFriendly: false,
-    // Room details (if hasPlace)
     bedrooms: '',
     bathrooms: '',
     amenities: [],
@@ -45,6 +49,33 @@ const PostFlatmatePage = () => {
     description: '',
     phone: ''
   });
+
+  useEffect(() => {
+    if (isEditMode) {
+      const fetchProfile = async () => {
+        try {
+          const res = await api.get(`/profiles/${id}`);
+          const data = res.data;
+          setFormData({
+            ...data,
+            age: data.age.toString(),
+            budget: data.budget.toString(),
+            bedrooms: data.bedrooms?.toString() || '',
+            bathrooms: data.bathrooms?.toString() || '',
+          });
+          if (data.roomPhotos) {
+            setRoomPhotos(data.roomPhotos.map(url => ({ id: Math.random(), url, isExisting: true })));
+          }
+        } catch (e) {
+          toast.error('Failed to load profile');
+          navigate('/my-flatmate-profile');
+        } finally {
+          setFetching(false);
+        }
+      };
+      fetchProfile();
+    }
+  }, [id, isEditMode, navigate]);
 
   const puneAreas = [
     'Koregaon Park', 'Viman Nagar', 'Kharadi', 'Hinjewadi', 'Baner',
@@ -71,42 +102,35 @@ const PostFlatmatePage = () => {
       return;
     }
 
+    const newPhotoFiles = [...photoFiles];
+    const newRoomPhotos = [...roomPhotos];
+
     files.forEach(file => {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Each photo should be less than 5MB');
+        toast.error(`${file.name} is too large (>5MB)`);
         return;
       }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setRoomPhotos(prev => [...prev, {
-          id: Date.now() + Math.random(),
-          name: file.name,
-          url: reader.result
-        }]);
-      };
-      reader.readAsDataURL(file);
+      newPhotoFiles.push(file);
+      newRoomPhotos.push({
+        id: Math.random(),
+        url: URL.createObjectURL(file),
+        isExisting: false,
+        fileIndex: newPhotoFiles.length - 1
+      });
     });
-  };
 
-  const handleProfilePhotoUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Photo should be less than 5MB');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfilePhoto(reader.result);
-      toast.success('Profile photo uploaded');
-    };
-    reader.readAsDataURL(file);
+    setPhotoFiles(newPhotoFiles);
+    setRoomPhotos(newRoomPhotos);
   };
 
   const removePhoto = (id) => {
+    const photoToRemove = roomPhotos.find(p => p.id === id);
+    if (!photoToRemove) return;
+
+    if (!photoToRemove.isExisting) {
+      // If it was a new file, we should ideally remove it from photoFiles too
+      // but simpler to just filter it out during submit based on roomPhotos state
+    }
     setRoomPhotos(prev => prev.filter(p => p.id !== id));
   };
 
@@ -114,49 +138,73 @@ const PostFlatmatePage = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (!formData.phone || formData.phone.length < 10) {
-      toast.error('Please enter a valid phone number');
-      setLoading(false);
-      return;
-    }
+    try {
+      if (!formData.phone || formData.phone.length < 10) {
+        throw new Error('Please enter a valid phone number');
+      }
 
-    if (!formData.age || formData.age < 18 || formData.age > 100) {
-      toast.error('Please enter a valid age (18-100)');
-      setLoading(false);
-      return;
-    }
+      // 1. Handle Image Uploads
+      let finalPhotoUrls = roomPhotos.filter(p => p.isExisting).map(p => p.url);
+      const newFilesToUpload = roomPhotos.filter(p => !p.isExisting).map((p, idx) => {
+        // Find the actual file from the original upload event
+        // (Assuming we kept them in sync or just take from photoFiles)
+        // A better way is to store the File object directly in roomPhotos
+        return photoFiles[p.fileIndex];
+      }).filter(Boolean);
 
-    // If user has a place, photos are mandatory
-    if (formData.hasPlace && roomPhotos.length === 0) {
-      toast.error('Please upload at least one photo of your room');
-      setLoading(false);
-      return;
-    }
+      if (newFilesToUpload.length > 0) {
+        const imageFormData = new FormData();
+        newFilesToUpload.forEach(file => imageFormData.append('images', file));
+        
+        const uploadRes = await api.post('/upload/images', imageFormData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        finalPhotoUrls = [...finalPhotoUrls, ...uploadRes.data];
+      }
 
-    const newProfile = {
-      id: Date.now().toString(),
-      ...formData,
-      age: parseInt(formData.age),
-      budget: parseInt(formData.budget),
-      bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
-      bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
-      roomPhotos: roomPhotos,
-      userId: user.id,
-      userEmail: user.email,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    };
+      // If owner, photos are mandatory (at least 1 for profile, but let's say 4 for consistency if possible)
+      if ((formData.role === 'flat_owner' || formData.role === 'pg_owner') && finalPhotoUrls.length === 0) {
+        throw new Error('Please upload at least one photo of your room');
+      }
 
-    setTimeout(() => {
-      const existingProfiles = JSON.parse(localStorage.getItem('flatmateProfiles') || '[]');
-      existingProfiles.push(newProfile);
-      localStorage.setItem('flatmateProfiles', JSON.stringify(existingProfiles));
+      const payload = {
+        ...formData,
+        id: isEditMode ? id : undefined, // Let backend generate if new
+        age: parseInt(formData.age),
+        budget: parseFloat(formData.budget),
+        bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
+        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
+        roomPhotos: finalPhotoUrls,
+        userId: user.id,
+        userEmail: user.email,
+        status: isEditMode ? formData.status : 'pending',
+        createdAt: formData.createdAt || new Date().toISOString()
+      };
+
+      if (isEditMode) {
+        await api.put(`/profiles/${payload.id}`, payload);
+        toast.success('Profile updated successfully!');
+      } else {
+        await api.post('/profiles', payload);
+        toast.success('Profile posted successfully! Waiting for admin approval.');
+      }
       
-      toast.success('Profile posted successfully! Waiting for admin approval.');
       navigate('/my-flatmate-profile');
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || 'Failed to submit profile');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
+
+  if (fetching) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -297,36 +345,36 @@ const PostFlatmatePage = () => {
               <div className="space-y-4 p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
                 <h3 className="text-lg font-semibold text-foreground">Your Accommodation Status</h3>
                 
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="hasPlace"
-                    checked={formData.hasPlace}
-                    onCheckedChange={(checked) => setFormData({...formData, hasPlace: checked})}
-                  />
-                  <Label htmlFor="hasPlace" className="font-normal cursor-pointer text-base">
-                    I already have a place and looking for a flatmate to share
-                  </Label>
-                </div>
+                <RadioGroup 
+                  value={formData.role} 
+                  onValueChange={(value) => setFormData({...formData, role: value})}
+                  className="space-y-3"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="roommate_seeker" id="ns-seeker" />
+                    <Label htmlFor="ns-seeker" className="font-normal cursor-pointer text-base">
+                      I am looking for a room or flatmate
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="flat_owner" id="ns-flat" />
+                    <Label htmlFor="ns-flat" className="font-normal cursor-pointer text-base">
+                      I have a private flat/room and need a flatmate
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pg_owner" id="ns-pg" />
+                    <Label htmlFor="ns-pg" className="font-normal cursor-pointer text-base">
+                      I run a Paying Guest (PG) accommodation
+                    </Label>
+                  </div>
+                </RadioGroup>
 
-                {formData.hasPlace && (
+                {(formData.role === 'flat_owner' || formData.role === 'pg_owner') && (
                   <div className="space-y-4 mt-4 p-4 bg-white rounded-lg border border-border">
                     <h4 className="font-semibold text-accent">Room Details</h4>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="roomType">Type of Accommodation *</Label>
-                      <RadioGroup value={formData.roomType} onValueChange={(value) => setFormData({...formData, roomType: value})}>
-                        <div className="flex items-center space-x-6">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="pg" id="pg" />
-                            <Label htmlFor="pg" className="font-normal cursor-pointer">PG (Paying Guest)</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="rent" id="rent" />
-                            <Label htmlFor="rent" className="font-normal cursor-pointer">Rental Property</Label>
-                          </div>
-                        </div>
-                      </RadioGroup>
-                    </div>
+
 
                     {/* Photo Upload - MANDATORY for room owners */}
                     <div className="space-y-2">
@@ -354,7 +402,7 @@ const PostFlatmatePage = () => {
                             <div key={photo.id} className="relative group">
                               <img 
                                 src={photo.url} 
-                                alt={photo.name}
+                                alt="Room"
                                 className="w-full h-32 object-cover rounded-lg border border-border"
                               />
                               <button
@@ -418,7 +466,7 @@ const PostFlatmatePage = () => {
                         placeholder="Street, landmark"
                         value={formData.address}
                         onChange={(e) => setFormData({...formData, address: e.target.value})}
-                        required={formData.hasPlace}
+                        required={formData.role !== 'roommate_seeker'}
                       />
                     </div>
 

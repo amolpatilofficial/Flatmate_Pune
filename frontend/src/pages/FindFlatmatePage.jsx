@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import api from '@/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,11 +22,15 @@ const FindFlatmatePage = () => {
     loadProfiles();
   }, []);
 
-  const loadProfiles = () => {
-    const profiles = JSON.parse(localStorage.getItem('flatmateProfiles') || '[]');
-    const approved = profiles.filter(p => p.status === 'approved');
-    setFlatmateProfiles(approved);
-    setFilteredProfiles(approved);
+  const loadProfiles = async () => {
+    try {
+      const res = await api.get('/profiles');
+      const approved = res.data.filter(p => p.status === 'approved');
+      setFlatmateProfiles(approved);
+      setFilteredProfiles(approved);
+    } catch (e) {
+      console.error('Failed to load profiles', e);
+    }
   };
 
   useEffect(() => {
@@ -203,7 +208,7 @@ const FindFlatmatePage = () => {
                     </div>
                   </div>
 
-                  {profile.hasPlace && (
+                  {profile.role === 'flat_owner' && (
                     <div className="bg-success/10 text-success text-xs p-2 rounded-md">
                       Already has accommodation
                     </div>

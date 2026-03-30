@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +15,7 @@ import { Home, User, Menu, X, LogOut, Plus, List, ShieldCheck } from 'lucide-rea
 export const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -29,23 +30,25 @@ export const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <Home className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold text-foreground">RoomMate<span className="text-primary">.</span></span>
+            <span className="text-xl font-bold text-foreground">RoomYaar<span className="text-primary">.</span></span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/find-rooms">
-              <Button variant="ghost" size="sm">Find Rooms</Button>
+            <Link to="/browse-flats">
+              <Button variant="ghost" size="sm">Browse Flats</Button>
             </Link>
 
             {user ? (
               <>
-                <Link to="/post-flatmate">
-                  <Button size="sm" className="bg-primary hover:bg-primary/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Post Profile
-                  </Button>
-                </Link>
+                {location.pathname !== '/my-listings' && (
+                  <Link to="/post-property">
+                    <Button size="sm" className="bg-primary hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      List Your Flat
+                    </Button>
+                  </Link>
+                )}
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -63,7 +66,7 @@ export const Navbar = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/my-flatmate-profile')}>
                       <User className="h-4 w-4 mr-2" />
-                      My Flatmate Profile
+                      My Profiles
                     </DropdownMenuItem>
                     {isAdmin && (
                       <DropdownMenuItem onClick={() => navigate('/admin')}>
@@ -105,18 +108,20 @@ export const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-card">
           <div className="px-4 pt-2 pb-4 space-y-2">
-            <Link to="/find-rooms" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="ghost" size="sm" className="w-full justify-start">Find Rooms</Button>
+            <Link to="/browse-flats" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" size="sm" className="w-full justify-start">Browse Flats</Button>
             </Link>
             
             {user ? (
               <>
-                <Link to="/post-flatmate" onClick={() => setMobileMenuOpen(false)}>
-                  <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Post Profile
-                  </Button>
-                </Link>
+                {location.pathname !== '/my-listings' && (
+                  <Link to="/post-property" onClick={() => setMobileMenuOpen(false)}>
+                    <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      List Your Flat
+                    </Button>
+                  </Link>
+                )}
                 <Link to="/my-listings" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     <List className="h-4 w-4 mr-2" />
@@ -126,7 +131,7 @@ export const Navbar = () => {
                 <Link to="/my-flatmate-profile" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     <User className="h-4 w-4 mr-2" />
-                    My Flatmate Profile
+                    My Profiles
                   </Button>
                 </Link>
                 {isAdmin && (

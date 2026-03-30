@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-const AuthContext = createContext(null);
+import api from '../api';const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -23,9 +22,16 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const login = async (userData) => {
+    try {
+      const response = await api.post('/auth/login', userData);
+      setUser(response.data.user);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      return { success: true, user: response.data.user };
+    } catch (error) {
+      console.error('Login error', error);
+      return { success: false, error: error.response?.data?.detail };
+    }
   };
 
   const logout = () => {
@@ -33,9 +39,16 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  const register = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const register = async (userData) => {
+    try {
+      const response = await api.post('/auth/register', userData);
+      setUser(response.data);
+      localStorage.setItem('user', JSON.stringify(response.data));
+      return { success: true, user: response.data };
+    } catch (error) {
+      console.error('Registration error', error);
+      return { success: false, error: error.response?.data?.detail };
+    }
   };
 
   const value = {

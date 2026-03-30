@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import api from '@/api';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -23,25 +24,39 @@ import { MapPin, Trash2, Plus, Eye, Briefcase, Calendar, IndianRupee } from 'luc
 const MyFlatmateProfilePage = () => {
   const { user } = useAuth();
   const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
-    loadProfiles();
+    if (user) {
+      loadProfiles();
+    } else {
+      setLoading(false);
+    }
   }, [user]);
 
-  const loadProfiles = () => {
-    const allProfiles = JSON.parse(localStorage.getItem('flatmateProfiles') || '[]');
-    const userProfiles = allProfiles.filter(p => p.userId === user?.id);
-    setProfiles(userProfiles);
+  const loadProfiles = async () => {
+    try {
+      const res = await api.get('/profiles');
+      const userProfiles = res.data.filter(p => p.userId === user?.id);
+      setProfiles(userProfiles);
+    } catch (e) {
+      console.error('Failed to load profiles', e);
+      toast.error('Failed to load your profiles');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (id) => {
-    const allProfiles = JSON.parse(localStorage.getItem('flatmateProfiles') || '[]');
-    const updated = allProfiles.filter(p => p.id !== id);
-    localStorage.setItem('flatmateProfiles', JSON.stringify(updated));
-    loadProfiles();
-    toast.success('Profile deleted successfully');
-    setDeleteId(null);
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/profiles/${id}`);
+      loadProfiles();
+      toast.success('Profile deleted successfully');
+      setDeleteId(null);
+    } catch (e) {
+      toast.error('Failed to delete profile');
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -55,6 +70,7 @@ const MyFlatmateProfilePage = () => {
   };
 
   const getInitials = (name) => {
+    if (!name) return '??';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
@@ -63,6 +79,18 @@ const MyFlatmateProfilePage = () => {
            gender === 'female' ? 'bg-pink-100 text-pink-700' : 
            'bg-purple-100 text-purple-700';
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -145,7 +173,7 @@ const MyFlatmateProfilePage = () => {
                     <Badge className={getGenderColor(profile.gender)} variant="secondary">
                       {profile.gender === 'any' ? 'No Preference' : profile.gender}
                     </Badge>
-                    {profile.hasPlace && (
+                    {profile.role === 'flat_owner' && (
                       <Badge variant="outline" className="text-xs">Has Place</Badge>
                     )}
                   </div>
@@ -155,6 +183,11 @@ const MyFlatmateProfilePage = () => {
                     <Button variant="outline" className="w-full">
                       <Eye className="h-4 w-4 mr-2" />
                       View
+                    </Button>
+                  </Link>
+                  <Link to={`/edit-flatmate/${profile.id}`}>
+                    <Button variant="outline" size="icon">
+                      <Plus className="h-4 w-4 rotate-45" /> {/* Edit icon fallback */}
                     </Button>
                   </Link>
                   <Button 

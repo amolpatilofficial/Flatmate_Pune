@@ -11,7 +11,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
               <Home className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold">RoomMate<span className="text-primary">.</span></span>
+              <span className="text-xl font-bold">RoomYaar<span className="text-primary">.</span></span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Find your perfect flatmate in Pune. Simple, secure, and reliable.
@@ -58,7 +58,7 @@ export const Footer = () => {
         </div>
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} RoomMate. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} RoomYaar. All rights reserved.</p>
         </div>
       </div>
     </footer>

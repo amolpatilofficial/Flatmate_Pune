@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import api from '@/api';
@@ -12,15 +12,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Upload } from 'lucide-react';
 
-const PostPropertyPage = () => {
+const EditPropertyPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const [aadhaarFile, setAadhaarFile] = useState(null);
-  const [imageFiles, setImageFiles] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+  const [fetching, setFetching] = useState(true);
   
   const [formData, setFormData] = useState({
     category: 'pg',
@@ -35,7 +33,8 @@ const PostPropertyPage = () => {
     amenities: [],
     lift: false,
     waterType: 'tap',
-    ownerPhone: ''
+    ownerPhone: '',
+    images: []
   });
 
   const puneAreas = [
@@ -51,7 +50,53 @@ const PostPropertyPage = () => {
     private_flat: ['1 BHK', '2 BHK', '3 BHK', 'Studio']
   };
 
-  const needsAadhaar = false;
+  useEffect(() => {
+    const fetchListing = async () => {
+      try {
+        const res = await api.get('/properties');
+        const found = res.data.find(p => p.id === id);
+        
+        if (!found) {
+          toast.error('Listing not found');
+          navigate('/my-listings');
+          return;
+        }
+
+        if (found.ownerId !== user?.id) {
+          toast.error('You do not have permission to edit this listing');
+          navigate('/my-listings');
+          return;
+        }
+
+        setFormData({
+          category: found.category || 'pg',
+          title: found.title || '',
+          description: found.description || '',
+          propertyType: found.propertyType || '',
+          area: found.area || '',
+          address: found.address || '',
+          price: found.price || '',
+          bedrooms: found.bedrooms || '',
+          bathrooms: found.bathrooms || '',
+          amenities: found.amenities || [],
+          lift: found.lift || false,
+          waterType: found.waterType || 'tap',
+          ownerPhone: found.ownerPhone || '',
+          images: found.images || []
+        });
+      } catch (err) {
+        console.error(err);
+        toast.error('Failed to load listing');
+        navigate('/my-listings');
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    if (user?.id) {
+      fetchListing();
+    }
+  }, [id, user, navigate]);
 
   const handleAmenityToggle = (amenity) => {
     setFormData(prev => ({
@@ -62,131 +107,65 @@ const PostPropertyPage = () => {
     }));
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size should be less than 5MB');
-        return;
-      }
-      setAadhaarFile(file);
-      toast.success('Aadhaar document uploaded');
-    }
-  };
-
-  const handleImagesChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length + imageFiles.length > 4) {
-      toast.error('You can only upload exactly 4 images');
-      return;
-    }
-    
-    const validFiles = files.filter(file => {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error(`${file.name} is too large (max 5MB)`);
-        return false;
-      }
-      if (!file.type.startsWith('image/')) {
-        toast.error(`${file.name} is not an image`);
-        return false;
-      }
-      return true;
-    });
-
-    if (validFiles.length > 0) {
-      const newFiles = [...imageFiles, ...validFiles].slice(0, 4);
-      setImageFiles(newFiles);
-      
-      const newPreviews = newFiles.map(f => URL.createObjectURL(f));
-      setImagePreviews(newPreviews);
-    }
-  };
-
-  const removeImage = (index) => {
-    const newFiles = [...imageFiles];
-    newFiles.splice(index, 1);
-    setImageFiles(newFiles);
-    
-    const newPreviews = [...imagePreviews];
-    newPreviews.splice(index, 1);
-    setImagePreviews(newPreviews);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    if (needsAadhaar && !aadhaarFile) {
-      toast.error('Please upload Aadhaar document for rent/sell properties');
-      setLoading(false);
-      return;
-    }
-
-    if (imageFiles.length !== 4) {
-      toast.error('Exactly 4 property images are required');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.ownerPhone || formData.ownerPhone.length < 10) {
+    if (!formData.ownerPhone || formData.ownerPhone.toString().length < 10) {
       toast.error('Please enter a valid phone number');
       setLoading(false);
       return;
     }
 
+    const updatedListing = {
+      id: id,
+      ...formData,
+      price: parseInt(formData.price),
+      bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
+      bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
+      ownerId: user.id,
+      ownerName: user.name,
+      ownerEmail: user.email,
+      ownerPhone: formData.ownerPhone,
+      status: 'pending', // re-approve upon edit
+      createdAt: new Date().toISOString(), // Optional: can keep old if we fetch it
+      aadhaarUploaded: false
+    };
+
     try {
-      // 1. Upload images first
-      const imageFormData = new FormData();
-      imageFiles.forEach(file => {
-        imageFormData.append('images', file); // Use 'images' to match FastAPI List[UploadFile]
-      });
-      
-      const uploadRes = await api.post('/upload/images', imageFormData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      const uploadedUrls = uploadRes.data;
-
-      // 2. Submit property listing with uploaded URLs
-      const newListing = {
-        id: Date.now().toString(),
-        ...formData,
-        price: parseInt(formData.price),
-        bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
-        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
-        ownerId: user.id,
-        ownerName: user.name,
-        ownerEmail: user.email,
-        ownerPhone: formData.ownerPhone,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        aadhaarUploaded: needsAadhaar,
-        images: uploadedUrls
-      };
-
-      await api.post('/properties', newListing);
-      toast.success('Property posted successfully! Waiting for admin approval.');
+      await api.put(`/properties/${id}`, updatedListing);
+      toast.success('Property updated successfully! Sent for admin re-approval.');
       navigate('/my-listings');
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.detail || 'Failed to submit listing');
+      toast.error('Failed to update listing');
     } finally {
       setLoading(false);
     }
   };
 
+  if (fetching) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <p className="text-muted-foreground animate-pulse">Loading listing details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
-        <Card className="shadow-elegant-lg">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full">
+        <Card className="shadow-elegant-lg border-2 border-primary/20">
           <CardHeader>
-            <CardTitle className="text-3xl">Post Your Property</CardTitle>
+            <CardTitle className="text-3xl text-primary">Edit Property Listing</CardTitle>
             <CardDescription>
-              Fill in the details below to list your property. Properties require admin approval before going live.
+              Update your listing details. Note that changes will require admin re-approval.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -385,80 +364,23 @@ const PostPropertyPage = () => {
                 />
               </div>
 
-              {/* Property Images Upload */}
-              <div className="space-y-3">
-                <Label>Property Images * (Exactly 4 Required)</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
-                  <input
-                    type="file"
-                    id="propertyImages"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImagesChange}
-                    className="hidden"
-                    disabled={imageFiles.length >= 4}
-                  />
-                  <label htmlFor="propertyImages" className={`cursor-pointer ${(imageFiles.length >= 4) ? 'opacity-50 pointer-events-none' : ''}`}>
-                    <Upload className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-foreground font-medium">Click to select images</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {4 - imageFiles.length} remaining (Max 5MB each)
-                    </p>
-                  </label>
-                </div>
-                
-                {imagePreviews.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                    {imagePreviews.map((preview, idx) => (
-                      <div key={idx} className="relative group aspect-video bg-muted rounded-md overflow-hidden">
-                        <img 
-                          src={preview} 
-                          alt={`Preview ${idx + 1}`} 
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 bg-destructive/90 text-destructive-foreground p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center w-6 h-6"
-                        >
-                          X
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div className="flex gap-4">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate('/my-listings')}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-primary hover:bg-primary/90" 
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
-
-              {/* Aadhaar Upload for Rent/Sell */}
-              {needsAadhaar && (
-                <div className="space-y-2">
-                  <Label htmlFor="aadhaar">Aadhaar Document * (for verification)</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
-                    <input
-                      type="file"
-                      id="aadhaar"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <label htmlFor="aadhaar" className="cursor-pointer">
-                      <Upload className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        {aadhaarFile ? aadhaarFile.name : 'Click to upload Aadhaar (PDF, JPG, PNG - Max 5MB)'}
-                      </p>
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              <Button 
-                type="submit" 
-                className="w-full bg-primary hover:bg-primary/90" 
-                disabled={loading}
-                size="lg"
-              >
-                {loading ? 'Submitting...' : 'Submit for Approval'}
-              </Button>
             </form>
           </CardContent>
         </Card>
@@ -469,4 +391,4 @@ const PostPropertyPage = () => {
   );
 };
 
-export default PostPropertyPage;
+export default EditPropertyPage;

@@ -156,7 +156,7 @@ const FlatmateDetailPage = () => {
                     <div>
                       <div className="text-sm text-muted-foreground">Accommodation</div>
                       <div className="font-semibold">
-                        {profile.hasPlace ? 'Has place' : 'Looking for place'}
+                        {profile.role === 'flat_owner' ? 'Has place' : profile.role === 'pg_owner' ? 'PG Owner' : 'Looking for place'}
                       </div>
                     </div>
                   </div>

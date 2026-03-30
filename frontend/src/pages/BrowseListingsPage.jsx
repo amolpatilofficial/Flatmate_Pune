@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
+import api from '@/api';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -17,11 +18,17 @@ const BrowseListingsPage = () => {
   const [areaFilter, setAreaFilter] = useState('all');
 
   useEffect(() => {
-    // Load mock data from localStorage
-    const allListings = JSON.parse(localStorage.getItem('propertyListings') || '[]');
-    const approved = allListings.filter(l => l.status === 'approved' && l.category === category);
-    setListings(approved);
-    setFilteredListings(approved);
+    const fetchListings = async () => {
+      try {
+        const res = await api.get('/properties');
+        const approved = res.data.filter(l => l.status === 'approved' && l.category === category);
+        setListings(approved);
+        setFilteredListings(approved);
+      } catch (error) {
+        console.error('Failed to load properties', error);
+      }
+    };
+    fetchListings();
   }, [category]);
 
   useEffect(() => {
@@ -123,11 +130,17 @@ const BrowseListingsPage = () => {
             {filteredListings.map((listing) => (
               <Card key={listing.id} className="overflow-hidden hover:shadow-elegant-lg transition-all duration-300 hover:-translate-y-1">
                 <div className="aspect-video bg-gradient-to-br from-secondary to-muted relative overflow-hidden">
-                  <img 
-                    src={listing.image || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop`}
-                    alt={listing.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="w-full h-full grid grid-cols-2 grid-rows-2 gap-0.5">
+                    {[0, 1, 2, 3].map((idx) => (
+                      <div key={idx} className="relative overflow-hidden">
+                        <img 
+                          src={listing.images?.[idx] || `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&h=200&fit=crop`}
+                          alt={`${listing.title} ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
                   <Badge className="absolute top-3 right-3 bg-background/90 text-foreground">
                     {listing.propertyType}
                   </Badge>

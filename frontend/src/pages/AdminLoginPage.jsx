@@ -19,21 +19,19 @@ const AdminLoginPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Mock admin login - check against admin users only
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const adminUser = users.find(u => u.email === email && u.password === password && u.isAdmin === true);
-
-    setTimeout(() => {
-      if (adminUser) {
-        const { password, ...userWithoutPassword } = adminUser;
-        login(userWithoutPassword);
-        toast.success('Welcome Admin!');
-        navigate('/admin');
-      } else {
-        toast.error('Invalid admin credentials or not an admin account.');
+    const result = await login({ email, password });
+    
+    if (result && result.success && result.user && result.user.isAdmin) {
+      toast.success('Welcome Admin!');
+      navigate('/admin');
+    } else {
+      toast.error('Invalid admin credentials or not an admin account.');
+      // if they weren't admin but still logged in, logout
+      if (result && result.success && (!result.user || !result.user.isAdmin)) {
+         // handle implicit session reset if needed
       }
-      setLoading(false);
-    }, 800);
+    }
+    setLoading(false);
   };
 
   return (

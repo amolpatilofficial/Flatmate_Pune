@@ -25,12 +25,6 @@ const MyListingsPage = () => {
   const [listings, setListings] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    if (user?.id) {
-      loadListings();
-    }
-  }, [user, loadListings]);
-
   const loadListings = useCallback(async () => {
     try {
       const res = await api.get('/properties');
@@ -40,6 +34,12 @@ const MyListingsPage = () => {
       console.error('Failed to load listings', e);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadListings();
+    }
+  }, [user, loadListings]);
 
   const handleDelete = async (id) => {
     try {

@@ -301,7 +301,7 @@ export const seedMockData = async () => {
     await api.post('/seed', {
       users: users,
       properties: mockListings,
-      profiles: mockFlatmates
+      profiles: []
     });
     localStorage.setItem('db_seeded', 'true');
     console.log('Database seeded successfully from backend via API!');
